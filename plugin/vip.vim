@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.0
-" Last Change: nov. 07 2010
+" Version:     0.1.1
+" Last Change: nov. 11 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -51,11 +51,6 @@ function s:PasteI(sigPrefix, yankBlock)
     let signalLeft = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
     let signalRight = substitute(signalLeft, "\[ \t]", "", "g") " remove space & tab at begenning of line
    for currentWord in currentList
-      if (currentWord==? "end") " Security check
-                                " To do : add EOF check
-        echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
-        return 0
-      endif
       if (currentWord ==? "port") || (currentWord ==? "port(")
         let openBlock = 1 "Opening of the block detected
       endif
@@ -116,11 +111,14 @@ function s:CopyLines(blockType)
   while ((braceCnt != 0) || (closeBrace == 0))
     let currentLine += [getline(fLine + i)]
     let currentList = split(currentLine[i])
+    if currentList == []
+      echohl WarningMsg | echo  "error : end of block not detected, missing \");\" ?" | echohl None
+      return []
+    endif
     for currentWord in currentList
       "echo currentWord
       "echo braceCnt
-      if (currentWord==? "end") " Security check
-                                " To do : add EOF check
+      if (currentWord==? "end")
         echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
         return []
       endif
@@ -150,7 +148,12 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:CheckType()
   let firstLine = split(getline("."))
-  if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic"))
+  if (firstLine == [])
+    " empty line
+    echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
+    return ""
+  endif
+  if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic") || (firstLine[0] ==? ")") || (firstLine[0] ==? ");"))
     " Bad cursor position, cursor should be on "entity", "component"
     " or on the instance name line
     echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
@@ -161,7 +164,7 @@ function s:CheckType()
       return firstLineWord
     endif
   endfor
-  " Search for an instance above
+  " Search for an instance under the current line
   let firstLine = split(getline(line(".") + 1))
   if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic"))
     return firstLine[0]

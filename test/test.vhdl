@@ -11,7 +11,7 @@
     );
   end component a_a;
 
-
+   
 
 	  component a_b is port (
 	      DATA     : in std_logic_vector (31 downto 0); -- comment comment comment
@@ -136,71 +136,96 @@
     DELAY      => s_DELAY       -- comment comment comment
   );
 
-  U1 : d_b port map (
+  U1 : d_b
+  port map (
+    DATA     => s_DATA,     -- comment comment comment
+    CLK        => s_CLK,        -- comment comment comment
+    RST_SRn    => s_RST_SRn,    -- comment comment comment
+    DELAY      => s_DELAY       -- comment comment comment
+  );
+
+  U2 : d_c port map (
     DATA       => s_DATA,     -- comment comment comment
     CLK        => s_CLK,        -- comment comment comment
     RST_SRn    => s_RST_SRn,    -- comment comment comment
     DELAY      => s_DELAY);
 
-  U2 : e_a
+  U3 : e_a
   generic map (g_WIDTH => 14)   -- comment comment comment
   port map (
-    DATA    => s_DATA         -- comment comment comment
+    DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK     => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U3 : e_b
+  U4 : e_b
   generic map (g_WIDTH => 14)   -- comment comment comment
   port map (
-    DATA    => s_DATA         -- comment comment comment
+    DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK     => s_CLKOUT0(0));
 
-  U4 : e_c
+  U5 : e_c
   generic map (
     g_WIDTH => 14   -- comment comment comment
   )
   port map (
-    DATA  => s_DATA         -- comment comment comment
+    DATA  => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U5 : e_d
+  U6 : e_d
   generic
     map (
       g_WIDTH => 14   -- comment comment comment
     )
   port map (
-    DATA    => s_DATA         -- comment comment comment
+    DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK     => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U6 : e_e
+  U7 : e_e
   generic
     map (
       g_WIDTH => 14   -- comment comment comment
     )
   port
     map (
-      DATA    => s_DATA         -- comment comment comment
+      DATA    => s_DATA,         -- comment comment comment
       CLK     => s_CLK,           -- comment comment comment
       RST_SRn => s_RSTn,          -- comment comment comment
       CLK => s_CLKOUT0(0)     -- comment comment comment
     );
 
-  U7 : e_f generic map (g_WIDTH => 14)   -- comment comment comment
+  U8 : e_f generic map (g_WIDTH => 14)   -- comment comment comment
   port map (
-    DATA    => s_DATA         -- comment comment comment
+    DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
+
+  U9 : e_g generic
+  map (g_WIDTH => 14)   -- comment comment comment
+  port map (
+    DATA    => s_DATA,         -- comment comment comment
+    CLK     => s_CLK,           -- comment comment comment
+    RST_SRn => s_RSTn,          -- comment comment comment
+    CLK => s_CLKOUT0(0)     -- comment comment comment
+  );
+
+  U9 : e_g generic
+  map (g_WIDTH => 14)   -- comment comment comment
+  port map (
+    DATA    => s_DATA,         -- comment comment comment
+    CLK     => s_CLK,           -- comment comment comment
+    RST_SRn => s_RSTn,          -- comment comment comment
+    CLK => s_CLKOUT0(0)     -- comment comment comment
 
 -- vim:set noexpandtab

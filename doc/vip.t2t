@@ -1,22 +1,26 @@
 
+%!postproc(html): @@ <br>
+%!postproc(xhtml): @@ <br />
+%!postproc(txt): "@@" ""
+%!postproc(art): "@@" ""
+
 = VIP : VHDL Interface Plugin =
 
 ====================
-- Version : 0.1.0
-- Status : Alpha release
-- Last Change : nov. 08 2010
+- Version : 0.1.1
+- Last Change : nov. 11 2010
 ====================
 
 == Introduction ==
-**VIP** (//VHDL Interface Plug-in//) is a script for VIM text editor (http://www.vim.org/) which provides some facilities to copy paste entities, components and instances of components.
+**VIP** (//VHDL Interface Plug-in//) is a script for VIM text editor (http://www.vim.org/) which provides some facilities to copy paste entities, components and instances of components.@@
 For example you can copy the component :
 
 ```
   component b_a is   -- put the cursor on this line and enter the command :Viy (Vhdl Interface Yank)
     port (
       INPUT  : in  std_logic_vector (15 downto 0);
-      SEL    : in  std_logic; 
-      OUTPUT : out std_logic  
+      SEL    : in  std_logic;
+      OUTPUT : out std_logic
     );
   end component b_a;
 ```
@@ -49,45 +53,223 @@ VIP can
 
 
 VIP tries to respect your indentation as much as possible (spaces, tabs, spaces + tabs).
-It can work with many differenst styles of writing entities and components, but not all of them. See the "good and bad writing styles" section.
-
-__Note__ : this version of VIP is an **alpha** realese
+It can work with many differenst styles of writing entities and components, but not all of them. See the "Formatting Blocks" section.
 
 
 == Installation ==
-Put the plugin/vip.vim file into your ~/.vim/plugin (or $HOME\vimfiles\plugin) directory.
+Put the plugin/vip.vim file into your ~/.vim/plugin (or $HOME\vimfiles\plugin) directory.@@
 Put the doc/vip.txt into your ~/.vim/doc (or $HOME\vimfiles\doc) directory.
 
-run ":helptags ~/.vim/doc" (":helptags $HOME/vimfiles/doc")
+Run ":helptags ~/.vim/doc" (":helptags $HOME/vimfiles/doc")
+
 
 == Commands ==
-**:Viy** or **<leader>y** copy a block (entity, component or instance of component) [**V**hdl **I**nterface **Y**ank]
-**:Vie** or **<leader>e** paste as entity [**V**hdl **I**nterface **E**ntity]
-**:Vic** or **<leader>c** paste as component [**V**hdl **I**nterface **C**omponent]
-**:Vii** or **<leader>i** paste as instance [**V**hdl **I**nterface **I**nstance]
+**:Viy** or **<leader>y** copy a block (entity, component or instance of component) [**V**hdl **I**nterface **Y**ank]@@
+**:Vie** or **<leader>e** paste as entity [**V**hdl **I**nterface **E**ntity]@@
+**:Vic** or **<leader>c** paste as component [**V**hdl **I**nterface **C**omponent]@@
+**:Vii** or **<leader>i** paste as instance [**V**hdl **I**nterface **I**nstance]@@
 
-You can remap those commands to any key you want by using the "nmap" command.
-For example, you can add to your file :
-
-nmap <F2> :Viy<CR>
-nmap <F3> :Vie<CR>
-nmap <F4> :Vic<CR>
-nmap <F5> :Vii<CR>
-
-__Note__ : don't use <F1>, it is already used for help
 
 == Usage ==
-TODO
+To copy a block, place the cursor on the line with "entity", or "component" word. For instance of componants, place the cursor on the instance declaration.@@
+Enter the command **:Viy** to copy the block.
 
-== Good and Bad Writing Styles ==
-TODO
+To paste the block, place the cursor where you want to paste it and enter :@@
+**:Vie** to paste as an entity@@
+**:Vic** to paste as a component@@
+**:Vii** to paste as an instance of a component@@
 
-== Download, Feedback and Comments ==
-TODO
+When an entity or a component is pasted as an instance, the ports are duplicated as signals with a "s_" prefix added.@@
+If you copy the component (or the entity) :
 
-== History ==
-===Version 0.1.0 ; nov. 08 2010===
-First alpha release
+```
+component mux is  -- place cursor here
+    port (
+      INPUT  : in  std_logic_vector (15 downto 0);
+      SEL    : in  std_logic;
+      OUTPUT : out std_logic
+    );
+  end component b_a;
+```
+
+and paste it as an instance. The copy will be :
+
+```
+  mux_ : mux
+    port map (
+      INPUT   => s_INPUT,
+      SEL     => s_SEL,
+      OUTPUT  => s_OUTPUT
+    );
+```
+
+The name of the instance is a duplication of the name of the component with an "_" suffix.
+
+To copy an instance, place the cursor on the line with the instance name :
+
+```
+  U2 : clock  -- place cursor here
+    generic map (g_WIDTH => 14)
+    port map (
+      DATA    => s_DATA,
+      CLK     => s_CLK,
+      RST_SRn => s_RSTn,
+      CLK     => s_CLKOUT0(0)
+    );
+```
+
+You can remap those commands to any key you want by using the "nmap" command.@@
+For example, you can add to your vimrc file :@@
+
+nmap <F2> :Viy<CR>@@
+nmap <F3> :Vie<CR>@@
+nmap <F4> :Vic<CR>@@
+nmap <F5> :Vii<CR>@@
+
+__Note__ : don't use <F1>, it is already used for help.
+
+
+== Formatting Blocks ==
+VIP needs some formatting to parse correctly a block. It will fail to read a block if the opening brace is followed by text or if there is no "port" or "generic" keyword before the opening brace.
+
+Here is some example of formatting which will **not work** with VIP :
+
+```
+  -- Bad formatting
+  -- No "port" or "generic" before the opening brace
+  component mux is port
+  (
+    INPUT  : in  std_logic_vector (15 downto 0);
+    OUTPUT : out std_logic
+  );
+  end component mux;
+```
+
+```
+  -- Bad formatting
+  -- Text after the opening brace
+  component mux is
+    port  (  INPUT  : in  std_logic_vector (15 downto 0);
+      OUTPUT : out std_logic
+    );
+    end component mux;
+```
+
+```
+  -- Bad formatting
+  -- Comment after the opening brace
+  component mux is
+    port  (   -- bad placed comment
+      INPUT  : in  std_logic_vector (15 downto 0);
+      OUTPUT : out std_logic
+      );
+    end component mux;
+```
+
+```
+  -- Bad formatting
+  -- Text after the opening brace
+  U0 : clock port map ( CLK => s_CLK );
+```
+
+The above formattings are not very common.
+
+Here is some example of formatting which will **work** with VIP :
+
+```
+  -- Good formatting for VIP
+  component mux is port (
+    INPUT  : in  std_logic;
+    SEL    : in  std_logic;
+    OUTPUT : out std_logic
+  );
+  end component mux;
+```
+
+```
+  -- Good formatting for VIP
+  component mux is
+    port (
+      INPUT  : in  std_logic;
+      SEL    : in  std_logic;
+      OUTPUT : out std_logic_vector (15 downto 0)
+    );
+  end component mux;
+```
+
+```
+  -- Good formatting for VIP
+  component mux is
+    port (
+      INPUT  : in  std_logic;
+      SEL    : in  std_logic;
+      OUTPUT : out std_logic_vector (15 downto 0) );
+  end component mux;
+```
+
+```
+  -- Good formatting for VIP
+  U0 : clock port map (
+    DATA     => s_DATA,
+    CLK        => s_CLK,
+    RST_SRn    => s_RST_SRn,
+    DELAY      => s_DELAY
+  );
+```
+
+```
+  -- Good formatting for VIP
+  U1 clock
+  port map (
+    DATA     => s_DATA,
+    CLK        => s_CLK,
+    RST_SRn    => s_RST_SRn,
+    DELAY      => s_DELAY
+  );
+```
+
+```
+  -- Good formatting for VIP
+  U3 : mux
+  generic map (g_WIDTH => 14)
+  port map (
+    DATA    => s_DATA,
+    CLK     => s_CLK,
+    RST_SRn => s_RSTn,
+    CLK     => s_CLKOUT0(0)
+  );
+```
+
+```
+ -- Good formatting for VIP
+ U5 : mux
+  generic map (
+    g_WIDTH => 14
+  )
+  port map (
+    DATA  => s_DATA,
+    CLK     => s_CLK,
+    RST_SRn => s_RSTn,
+    CLK => s_CLKOUT0(0)
+  );
+```
+
+```
+  U8 : mux generic map (g_WIDTH => 14)
+  port map (
+    DATA    => s_DATA,
+    CLK     => s_CLK,
+    RST_SRn => s_RSTn,
+    CLK => s_CLKOUT0(0)
+  );
+```
+
+
+== Download, Feedback and Contact ==
+Download : TODO@@
+Contact, feedback : http://jeanpaulricaud.perso.sfr.fr/?page_id=9 @@
+Source code : http://gitorious.org/vip
+
 
 == License ==
 ```
@@ -101,8 +283,20 @@ First alpha release
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-	
-	See http://www.gnu.org/licenses/
+	GNU Lesser General Public License for more details.
 ```
+http://www.gnu.org/licenses/
+
+
+== History ==
+===Version 0.1.1 ; nov. 11 2010===
+ - Check for empty line in function CheckType()
+ - Check for line with only ")" and");" in function CheckType()
+ - Check for missing ");" in function CheckType()
+
+
+===Version 0.1.0 ; nov. 08 2010===
+ - First alpha release
+
+
 % vim:set noexpandtab ff=unix
