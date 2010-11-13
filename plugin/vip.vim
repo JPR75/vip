@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.1
-" Last Change: nov. 11 2010
+" Version:     0.1.2
+" Last Change: nov. 13 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -48,8 +48,8 @@ function s:PasteI(sigPrefix, yankBlock)
   while ((braceCnt != 0) || (closeBrace == 0))
     let currentList = split(a:yankBlock[i])
     let currentLine = a:yankBlock[i]
-    let signalLeft = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
-    let signalRight = substitute(signalLeft, "\[ \t]", "", "g") " remove space & tab at begenning of line
+    let signalAfter = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
+    let signalName = substitute(signalAfter, "\[ \t]", "", "g") " remove space & tab at begenning of line
    for currentWord in currentList
       if (currentWord ==? "port") || (currentWord ==? "port(")
         let openBlock = 1 "Opening of the block detected
@@ -60,19 +60,22 @@ function s:PasteI(sigPrefix, yankBlock)
       if ((match(currentWord, ")") != -1) && (openBlock == 1))
         let braceCnt -= 1
         let closeBrace = 1
-        if ((braceCnt == 0) && (signalRight == ");")) " have we a closing brace at a new line ?
+        if match(currentWord, "))") != -1 " in case of a (m downto n));
+          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+        endif
+        if ((braceCnt == 0) && (signalName == ");")) " have we a closing brace at a new line ?
           let braceAtEnd = 0
         else
-          let braceAtEnd = 1
+          let braceAtEnd = 1 " closing brace at a new line
         endif
       endif
     endfor
-    if (signalRight ==? "port (") || (signalRight ==? "port(")
+    if (signalName ==? "port (") || (signalName ==? "port(")
       let portAtLine = 1
       let instanceBlock += [substitute(currentLine, "port", "port map", "")]
     else
       if ((braceCnt > 0) || (braceAtEnd == 1))
-        let instanceBlock += [signalLeft." => ".a:sigPrefix.signalRight.","]
+        let instanceBlock += [signalAfter." => ".a:sigPrefix.signalName.","]
       else
         let instanceBlock += [currentLine] " add generic
       endif
@@ -131,6 +134,9 @@ function s:CopyLines(blockType)
       if ((match(currentWord, ")") != -1) && (openBlock == 1))
         let braceCnt -= 1
         let closeBrace = 1
+        if match(currentWord, "))") != -1 " in case of a (m downto n));
+          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+        endif
       endif
     endfor
     let i += 1

@@ -289,13 +289,17 @@ http://www.gnu.org/licenses/
 
 
 == History ==
-===Version 0.1.1 ; nov. 11 2010===
+=== Version 0.1.2 ; nov. 13 2010 ===
+ - Added check for cases where the closing brace is preceded with another brace like (m downto n));
+
+
+=== Version 0.1.1 ; nov. 11 2010 ===
  - Check for empty line in function CheckType()
  - Check for line with only ")" and ");" in function CheckType()
  - Check for missing ");" in function CheckType()
 
 
-===Version 0.1.0 ; nov. 08 2010===
+=== Version 0.1.0 ; nov. 08 2010 ===
  - First alpha release
 
 

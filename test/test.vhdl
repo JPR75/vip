@@ -168,6 +168,14 @@
     CLK     => s_CLKOUT0(0));
 
   U5 : e_c
+  generic map (g_WIDTH => 14)   -- comment comment comment
+  port map (
+    DATA    => s_DATA,         -- comment comment comment
+    CLK     => s_CLK,           -- comment comment comment
+    RST_SRn => s_RSTn,          -- comment comment comment
+    CLK (15 downto 0) => s_CLKOUT0 (15 downto 0));
+
+  U6 : e_d
   generic map (
     g_WIDTH => 14   -- comment comment comment
   )
@@ -178,7 +186,7 @@
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U6 : e_d
+  U7 : e_e
   generic
     map (
       g_WIDTH => 14   -- comment comment comment
@@ -190,7 +198,7 @@
     CLK     => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U7 : e_e
+  U8 : e_f
   generic
     map (
       g_WIDTH => 14   -- comment comment comment
@@ -203,7 +211,7 @@
       CLK => s_CLKOUT0(0)     -- comment comment comment
     );
 
-  U8 : e_f generic map (g_WIDTH => 14)   -- comment comment comment
+  U9 : e_g generic map (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
@@ -211,7 +219,7 @@
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U9 : e_g generic
+  U10 : e_k generic
   map (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
@@ -220,7 +228,7 @@
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U9 : e_g generic
+  U11 : e_l generic
   map (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
