@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.2
-" Last Change: nov. 13 2010
+" Version:     0.1.3
+" Last Change: nov. 14 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -11,6 +11,12 @@ if exists("g:loaded_VIP")
   finish
 endif
 let g:loaded_VIP = 1
+
+" Global variables for user
+let g:instSuffix_VIP = "_" " the suffix added at the end of an instance name
+let g:sigPrefix_VIP = "s_" " the prefix added to signals names
+let g:entityWord_VIP = "entity" " the 'entity' word when pasted as entity
+let g:componentWord_VIP = "component" " the 'component' word when pasted as component
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Simple paste
@@ -36,7 +42,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Paste as instance
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function s:PasteI(sigPrefix, yankBlock)
+function s:PasteI(instSuffix, sigPrefix, yankBlock)
   let instanceBlock = []
   let braceCnt = 0
   let openBlock = 0
@@ -87,9 +93,9 @@ function s:PasteI(sigPrefix, yankBlock)
   let indentPos = match(a:yankBlock[0], "[a-zA-Z]")
   let indentVal = strpart(a:yankBlock[0], 0, indentPos)
   if portAtLine == 0
-    let instanceBlock[0] = indentVal.instanceName[1]."_ : ".instanceName[1]." port map ("
+    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix." : ".instanceName[1]." port map ("
   else
-    let instanceBlock[0] = indentVal.instanceName[1]."_ : ".instanceName[1]
+    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix." : ".instanceName[1]
   endif
   if braceAtEnd == 0
     let instanceBlock[i-2] = substitute(instanceBlock[i-2], "\,", "", "g") " remove the , of last signal
@@ -214,22 +220,22 @@ function s:Action(actionToDo)
         let result = s:SPaste(s:VHDLBlock)
       endif
       if (a:actionToDo == "component")
-        let result = s:PasteEC(s:VHDLType, "component", s:VHDLBlock)
+        let result = s:PasteEC(s:VHDLType, g:componentWord_VIP, s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteI("s_", s:VHDLBlock)
+        let result = s:PasteI(g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
       endif
     endif
     " Component paste
     if (s:VHDLType == "component")
       if (a:actionToDo == "entity")
-        let result = s:PasteEC(s:VHDLType, "entity", s:VHDLBlock)
+        let result = s:PasteEC(s:VHDLType, g:entityWord_VIP, s:VHDLBlock)
       endif
       if (a:actionToDo == "component")
         let result = s:SPaste(s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteI("s_", s:VHDLBlock)
+        let result = s:PasteI(g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
       endif
     endif
     " Instance paste
