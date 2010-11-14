@@ -90,7 +90,7 @@ component mux is  -- place cursor here
 and paste it as an instance. The copy will be :
 
 ```
-  mux_ : mux
+  mux_0 : mux
     port map (
       INPUT   => s_INPUT,
       SEL     => s_SEL,
@@ -98,7 +98,7 @@ and paste it as an instance. The copy will be :
     );
 ```
 
-The name of the instance is a duplication of the name of the component with an "_" suffix.
+The name of the instance is a duplication of the name of the component with a suffix ("_0"). The suffix number is auto-incremented when you do multiple paste of the same component.
 
 To copy an instance, place the cursor on the line with the instance name :
 
@@ -167,7 +167,7 @@ Here is some example of formatting which will **not work** with VIP :
   U0 : clock port map ( CLK => s_CLK );
 ```
 
-The above formattings are not very common.
+The above formatting are not very common.
 
 Here is some example of formatting which will **work** with VIP :
 
@@ -214,7 +214,7 @@ Here is some example of formatting which will **work** with VIP :
 
 ```
   -- Good formatting for VIP
-  U1 clock
+  U1 : clock
   port map (
     DATA     => s_DATA,
     CLK        => s_CLK,
@@ -272,7 +272,7 @@ To change the signal prefix, change the global variable g:sigPrefix_VIP.
 
 To change the instance's name suffix, change the global variable g:instSuffix_VIP.
 
-    :let g:instSuffix_VIP = "_Instance"
+    :let g:instSuffix_VIP = "_U"
     :let g:instSuffix_VIP = ""
 
 To change the entity word, change the global variable g:entityWord_VIP.
@@ -310,12 +310,17 @@ http://www.gnu.org/licenses/
 
 
 == History ==
-==== Version 0.1.3 ; nov. 14 2010 ===
+=== Version 0.1.4 ; nov. 14 2010 ===
+ - Added auto-incrementation of instance name
+ - Documentation updated
+
+
+=== Version 0.1.3 ; nov. 14 2010 ===
  - Added global variable for signal prefix, instance's name suffix, entity and component name
  - Documentation updated
 
 
-== Version 0.1.2 ; nov. 13 2010 ===
+=== Version 0.1.2 ; nov. 13 2010 ===
  - Added check for cases where the closing brace is preceded with another brace like (m downto n));
 
 

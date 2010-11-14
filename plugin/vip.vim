@@ -1,6 +1,6 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.3
+" Version:     0.1.4
 " Last Change: nov. 14 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
@@ -20,8 +20,7 @@ let g:componentWord_VIP = "component" " the 'component' word when pasted as comp
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Simple paste
-" Useless, just to avoid annoying warning
-" Use VIM built-in commands like yap instead
+" It's better to use VIM built-in commands like yap instead !
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:SPaste(yankBlock)
   call append(line("."), a:yankBlock)
@@ -29,20 +28,46 @@ function s:SPaste(yankBlock)
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Paste as entity or component
+" Paste a component / entity as an entity / component
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:PasteEC(blockType, blockSubstitute, yankBlock)
   let copyType  = a:blockType " to avoid alteration of the copied block
-  let copyBlock = copy(a:yankBlock) " to avoid alteration of the copied block
+  let copyBlock = copy(a:yankBlock) " to avoid alteration of the original block
   let newBlock = map(copyBlock, 'substitute(v:val, copyType, a:blockSubstitute, "g")')
   call append(line("."), newBlock)
   return 1
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Paste as instance
+" Paste an instance of component as an instance of component
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function s:PasteI(instSuffix, sigPrefix, yankBlock)
+function s:PasteII(instanceNumb, instSuffix, yankBlock)
+  let copyBlock = copy(a:yankBlock) " to avoid alteration of the original block
+  let currentList = split(copyBlock[0])
+  let posNumb = match(currentList[0], a:instSuffix)
+  " Lets check if the instance has already a suffix
+  if posNumb != -1
+    " Instance has already a suffix
+    let posNumb += strlen(a:instSuffix)
+    let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
+    let instNumb += a:instanceNumb
+    let newName = strpart(currentList[0], 0, posNumb)
+    let currentList[0] = newName.instNumb
+    let copyBlock[0] = join(currentList)
+  else
+  endif
+  " Lets add the original indentation of the instance
+  let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
+  let indentVal = strpart(a:yankBlock[0], 0, indentPos)
+  let copyBlock[0] = indentVal.copyBlock[0]
+  let result = s:SPaste(copyBlock)
+  return 1
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Paste a component / entity as an instance of component
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   let instanceBlock = []
   let braceCnt = 0
   let openBlock = 0
@@ -90,12 +115,12 @@ function s:PasteI(instSuffix, sigPrefix, yankBlock)
   endwhile
   " Head and tail of the instance
   let instanceName = split(a:yankBlock[0])
-  let indentPos = match(a:yankBlock[0], "[a-zA-Z]")
+  let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
   let indentVal = strpart(a:yankBlock[0], 0, indentPos)
   if portAtLine == 0
-    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix." : ".instanceName[1]." port map ("
+    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]." port map ("
   else
-    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix." : ".instanceName[1]
+    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]
   endif
   if braceAtEnd == 0
     let instanceBlock[i-2] = substitute(instanceBlock[i-2], "\,", "", "g") " remove the , of last signal
@@ -125,8 +150,6 @@ function s:CopyLines(blockType)
       return []
     endif
     for currentWord in currentList
-      "echo currentWord
-      "echo braceCnt
       if (currentWord==? "end")
         echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
         return []
@@ -204,9 +227,7 @@ function s:Action(actionToDo)
   " Copy
   if (a:actionToDo == "yank")
     let [s:VHDLType,s:VHDLBlock] = s:YankB()
-    "echo indent(".")
-    "echo &l:shiftwidth
-    "echo s:VHDLBlock
+    let s:instanceNumb = 0
   endif
   " Paste
   if s:VHDLBlock != []
@@ -223,7 +244,8 @@ function s:Action(actionToDo)
         let result = s:PasteEC(s:VHDLType, g:componentWord_VIP, s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteI(g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let result = s:PasteECI(s:instanceNumb, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let s:instanceNumb += 1
       endif
     endif
     " Component paste
@@ -235,7 +257,8 @@ function s:Action(actionToDo)
         let result = s:SPaste(s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteI(g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let result = s:PasteECI(s:instanceNumb, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let s:instanceNumb += 1
       endif
     endif
     " Instance paste
@@ -245,7 +268,9 @@ function s:Action(actionToDo)
       if (a:actionToDo == "component")
       endif
       if (a:actionToDo == "instance")
-        let result = s:SPaste(s:VHDLBlock)
+        "let result = s:SPaste(s:VHDLBlock)
+        let result = s:PasteII(s:instanceNumb, g:instSuffix_VIP, s:VHDLBlock)
+        let s:instanceNumb += 1
       endif
     endif
   endif
@@ -256,6 +281,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:VHDLBlock = [] " container for the block to be copied
 let s:VHDLType = ""  " type of the block to copy
+let s:instanceNumb = 0
 
 """""""""""""" Yank
 if !hasmapto('<Plug>SpecialVHDLAction')

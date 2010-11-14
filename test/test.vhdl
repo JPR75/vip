@@ -128,7 +128,9 @@
   end component c_d;
 
 ---------------------------------------------------------------------------------
+-- Instances
 ---------------------------------------------------------------------------------
+
   U0 : d_a port map (
     DATA     => s_DATA,     -- comment comment comment
     CLK        => s_CLK,        -- comment comment comment
@@ -228,7 +230,20 @@
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
-  U11 : e_l generic
+---------------------------------------------------------------------------------
+-- Bad Instances
+--------------------------------------------------------------------------------
+
+  U11  e_l generic
+  map (g_WIDTH => 14)   -- comment comment comment
+  port map (
+    DATA    => s_DATA,         -- comment comment comment
+    CLK     => s_CLK,           -- comment comment comment
+    RST_SRn => s_RSTn,          -- comment comment comment
+    CLK => s_CLKOUT0(0)     -- comment comment comment
+  );
+
+  U12 : e_l generic
   map (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
