@@ -11,19 +11,19 @@
 For example you can copy the component :
 
 ```
-  component b_a is   -- put the cursor on this line and enter the command :Viy (Vhdl Interface Yank)
+  component mux is   -- place the cursor on this line and enter the command :Viy (Vhdl Interface Yank)
     port (
       INPUT  : in  std_logic_vector (15 downto 0);
       SEL    : in  std_logic;
       OUTPUT : out std_logic
     );
-  end component b_a;
+  end component mux;
 ```
 
 and paste it as an instance :
 
 ```
-  b_a_ : b_a   -- put the cursor here and enter the command :Vii (Vhdl Interface Instance)
+  mux_0 : mux   -- place the cursor here and enter the command :Vii (Vhdl Interface Instance)
     port map (
       INPUT   => s_INPUT,
       SEL     => s_SEL,
@@ -66,6 +66,7 @@ Run ":helptags ~/.vim/doc" (":helptags $HOME/vimfiles/doc")
 
 
 == Usage ==
+=== Entity, Component ===
 To copy a block, place the cursor on the line with "entity", or "component" word. For instance of components, place the cursor on the instance declaration.@@
 Enter the command **:Viy** to copy the block.
 
@@ -98,8 +99,9 @@ and paste it as an instance. The copy will be :
     );
 ```
 
-The name of the instance is a duplication of the name of the component with a suffix ("_0"). The suffix number is auto-incremented when you do multiple paste of the same component.
+The name of the instance is a duplication of the component's name with a suffix ("_0") added. The suffix number is auto-incremented when you do multiple paste of the same component.
 
+=== Instance of component ===
 To copy an instance, place the cursor on the line with the instance name :
 
 ```
@@ -113,6 +115,21 @@ To copy an instance, place the cursor on the line with the instance name :
     );
 ```
 
+and use the **:Viy** command to copy and the **:Vii** to paste.@@
+If the instance name has a suffix, the suffix number is incremented. Otherwise, the suffix is added :
+
+```
+  U2_0 : clock  -- place cursor here
+    generic map (g_WIDTH => 14)
+    port map (
+      DATA    => s_DATA,
+      CLK     => s_CLK,
+      RST_SRn => s_RSTn,
+      CLK     => s_CLKOUT0(0)
+    );
+```
+
+=== Remap commands ===
 You can remap those commands to any key you want by using the "nmap" command.@@
 For example, you can add to your vimrc file :@@
 

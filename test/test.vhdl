@@ -131,7 +131,7 @@
 -- Instances
 ---------------------------------------------------------------------------------
 
-  U0 : d_a port map (
+  U0_7_u_10 : d_a port map (
     DATA     => s_DATA,     -- comment comment comment
     CLK        => s_CLK,        -- comment comment comment
     RST_SRn    => s_RST_SRn,    -- comment comment comment

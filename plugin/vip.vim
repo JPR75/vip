@@ -20,7 +20,6 @@ let g:componentWord_VIP = "component" " the 'component' word when pasted as comp
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Simple paste
-" It's better to use VIM built-in commands like yap instead !
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:SPaste(yankBlock)
   call append(line("."), a:yankBlock)
@@ -44,19 +43,31 @@ endfunction
 function s:PasteII(instanceNumb, instSuffix, yankBlock)
   let copyBlock = copy(a:yankBlock) " to avoid alteration of the original block
   let currentList = split(copyBlock[0])
-  let posNumb = match(currentList[0], a:instSuffix)
-  " Lets check if the instance has already a suffix
-  if posNumb != -1
+  let pos = 0
+  let posN = 0
+
+  " Let's check if the instance has already a suffix
+  " Get the position of the last suffix in the name if it exisits
+  while posN != -1
+    let posNumb = posN
+    let pos += 1
+    let posN = match(currentList[0], a:instSuffix, pos)
+  endwhile
+
+  if posNumb > 0
     " Instance has already a suffix
     let posNumb += strlen(a:instSuffix)
     let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
     let instNumb += a:instanceNumb
     let newName = strpart(currentList[0], 0, posNumb)
     let currentList[0] = newName.instNumb
-    let copyBlock[0] = join(currentList)
   else
+    " Instance hasn't a suffix, adding a suffix
+    let currentList[0] = currentList[0].a:instSuffix.a:instanceNumb
   endif
-  " Lets add the original indentation of the instance
+
+  let copyBlock[0] = join(currentList)
+  " Let's add the original indentation of the instance
   let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
   let indentVal = strpart(a:yankBlock[0], 0, indentPos)
   let copyBlock[0] = indentVal.copyBlock[0]
@@ -75,13 +86,14 @@ function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   let i = 0
   let braceAtEnd = 0
   let portAtLine = 0
+
   " Get signals inside entity / component
   while ((braceCnt != 0) || (closeBrace == 0))
     let currentList = split(a:yankBlock[i])
     let currentLine = a:yankBlock[i]
     let signalAfter = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
     let signalName = substitute(signalAfter, "\[ \t]", "", "g") " remove space & tab at begenning of line
-   for currentWord in currentList
+    for currentWord in currentList
       if (currentWord ==? "port") || (currentWord ==? "port(")
         let openBlock = 1 "Opening of the block detected
       endif
@@ -113,6 +125,7 @@ function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
     endif
     let i += 1
   endwhile
+
   " Head and tail of the instance
   let instanceName = split(a:yankBlock[0])
   let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
@@ -142,6 +155,7 @@ function s:CopyLines(blockType)
   let i = 0
   let currentLine = []
   let fLine = line(".")
+
   while ((braceCnt != 0) || (closeBrace == 0))
     let currentLine += [getline(fLine + i)]
     let currentList = split(currentLine[i])
@@ -170,6 +184,7 @@ function s:CopyLines(blockType)
     endfor
     let i += 1
   endwhile
+
   if ((a:blockType == "entity") || (a:blockType == "component"))
     let currentLine += [getline(fLine + i)] " Get the end entity / end component line
   endif
@@ -183,6 +198,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:CheckType()
   let firstLine = split(getline("."))
+
   if (firstLine == [])
     " empty line
     echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
@@ -199,6 +215,7 @@ function s:CheckType()
       return firstLineWord
     endif
   endfor
+
   " Search for an instance under the current line
   let firstLine = split(getline(line(".") + 1))
   if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic"))
