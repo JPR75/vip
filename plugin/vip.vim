@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.5
-" Last Change: nov. 16 2010
+" Version:     1.0.0
+" Last Change: nov. 17 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -13,11 +13,21 @@ endif
 let g:loaded_VIP = 1
 
 " Global variables for user
-let g:instSuffix_VIP = "_"            " the suffix added at the end of an instance name
-let g:sigPrefix_VIP = "s_"            " the prefix added to signals names
-let g:entityWord_VIP = "entity"       " the 'entity' word when pasted as entity
-let g:componentWord_VIP = "component" " the 'component' word when pasted as component
-let g:autoInc_VIP = 1                 " allows auto-incrementation of instance's name
+if !exists("g:instSuffix_VIP")
+  let g:instSuffix_VIP = "_"            " the suffix added at the end of an instance name
+endif
+if !exists("g:sigPrefix_VIP")
+  let g:sigPrefix_VIP = "s_"            " the prefix added to signals names
+endif
+if !exists("g:entityWord_VIP")
+  let g:entityWord_VIP = "entity"       " the 'entity' word when pasted as entity
+endif
+if !exists("g:componentWord_VIP")
+  let g:componentWord_VIP = "component" " the 'component' word when pasted as component
+endif
+if !exists("g:autoInc_VIP")
+  let g:autoInc_VIP = 1                 " allows auto-incrementation of instance's name
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Simple paste
@@ -312,7 +322,6 @@ endif
 noremap <unique> <script> <Plug>SpecialVHDLYank <SID>Yank
 noremap <SID>Yank :call <SID>Action("yank")<CR>
 
-"map <F2> :Viy<CR>
 if !exists(":Viy")
   command -nargs=0 Viy :call s:Action("yank")
 endif
@@ -324,7 +333,6 @@ endif
 noremap <unique> <script> <Plug>SpecialVHDLPaste <SID>Paste
 noremap <SID>Paste :call <SID>Action("paste")<CR>
 
-"map <F3> :Vip<CR>
 if !exists(":Vip")
   command -nargs=0 Vip :call s:Action("paste")
 endif
@@ -336,7 +344,6 @@ endif
 noremap <unique> <script> <Plug>SpecialVHDLPasteEntity <SID>PasteEntity
 noremap <SID>PasteEntity :call <SID>Action("entity")<CR>
 
-"map <F4> :Vie<CR>
 if !exists(":Vie")
   command -nargs=0 Vie :call s:Action("entity")
 endif
@@ -348,7 +355,6 @@ endif
 noremap <unique> <script> <Plug>SpecialVHDLPasteComponent <SID>PasteComponent
 noremap <SID>PasteComponent :call <SID>Action("component")<CR>
 
-"map <F5> :Vic<CR>
 if !exists(":Vic")
   command -nargs=0 Vic :call s:Action("component")
 endif
@@ -360,7 +366,6 @@ endif
 noremap <unique> <script> <Plug>SpecialVHDLPasteInstance <SID>PasteInstance
 noremap <SID>Paste Instance:call <SID>Action("instance")<CR>
 
-"map <F6> :Vii<CR>
 if !exists(":Vii")
   command -nargs=0 Vii :call s:Action("instance")
 endif

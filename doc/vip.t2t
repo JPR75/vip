@@ -38,21 +38,21 @@ and paste it as an instance :
 VIP can
 
 - copy an entity and paste it as
- - an entity (useless but possible)
+ - an entity
  - a component
  - an instance
 
 - copy a component and paste it as
  - an entity
- - a component (useless but possible)
+ - a component
  - an instance
 
 - copy a instance and paste it as
- - an instance (useless but possible)
+ - an instance (with auto-incrementation of the suffix number)
 
 
 VIP tries to respect your indentation as much as possible (spaces, tabs, spaces + tabs).
-It can work with many differenst styles of writing entities and components, but not all of them. See the "Formatting Blocks" section.
+It can work with many different styles of writing entities, components and instances, but not all of them. See the "Formatting Blocks" section.
 
 
 ==============================================================================
@@ -72,8 +72,7 @@ Run ":helptags ~/.vim/doc" (":helptags $HOME/vimfiles/doc")
 
 
 == Usage ==
-=== Entity, Component ===
-To copy a block, place the cursor on the line with "entity", or "component" word. For instance of components, place the cursor on the instance declaration.@@
+To copy a block, place the cursor on the line with "entity", or "component" word. For instance of components, place the cursor on the instance name.@@
 Enter the command **:Viy** to copy the block.
 
 To paste the block, place the cursor where you want to paste it and enter :@@
@@ -85,7 +84,7 @@ When an entity or a component is pasted as an instance, the ports are duplicated
 If you copy the component (or the entity) :
 
 ```
-component mux is  -- place cursor here
+  component mux is  -- place cursor here
     port (
       INPUT  : in  std_logic_vector (15 downto 0);
       SEL    : in  std_logic;
@@ -107,7 +106,6 @@ and paste it as an instance. The copy will be :
 
 The name of the instance is a duplication of the component's name with a suffix ("_0") added. The suffix number is auto-incremented when you do multiple paste of the same component.
 
-=== Instance of component ===
 To copy an instance, place the cursor on the line with the instance name :
 
 ```
@@ -137,23 +135,10 @@ If the instance name has a suffix, the suffix number is incremented. Otherwise, 
 
 
 ==============================================================================
-=== Remap commands ===
-You can remap those commands to any key you want by using the "nmap" command.@@
-For example, you can add to your vimrc file :@@
-
-nmap <F2> :Viy<CR>@@
-nmap <F3> :Vie<CR>@@
-nmap <F4> :Vic<CR>@@
-nmap <F5> :Vii<CR>@@
-
-__Note__ : don't use <F1>, it is already used for help.
-
-
-==============================================================================
 == Formatting Blocks ==
-VIP needs some formatting to parse correctly a block. It will fail to read a block if the opening brace is followed by text or if there is no "port" or "generic" keyword before the opening brace.
+VIP needs some formatting to parse correctly a block. It will fail to read a block if the opening brace is followed by text or if there is no "port" or "generic" keyword before the opening brace in the same line.
 
-Here is some example of formatting which will **not work** with VIP :
+Here is some examples of formatting which will **not work** with VIP :
 
 ```
   -- Bad formatting
@@ -193,9 +178,7 @@ Here is some example of formatting which will **not work** with VIP :
   U0 : clock port map ( CLK => s_CLK );
 ```
 
-The above formatting are not very common.
-
-Here is some example of formatting which will **work** with VIP :
+Here is some examples of formatting which will **work** with VIP :
 
 ```
   -- Good formatting for VIP
@@ -288,35 +271,47 @@ Here is some example of formatting which will **work** with VIP :
 
 ==============================================================================
 == Configuration ==
-To avoid the loading of VIP plugin, you can set the global variable g:loaded_VIP to 1.
-    :let g:loaded_sequence = 1
+To avoid the loading of VIP plugin, you can set the global variable g:loaded_VIP to 1 in your vimrc file.
+    let g:loaded_sequence = 1
 
 To change the signal prefix, change the global variable g:sigPrefix_VIP.
 Set it to an empty string ("") if you don't want a prefix.
-    :let g:sigPrefix_VIP = "sig_"
-    :let g:sigPrefix_VIP = ""
+    let g:sigPrefix_VIP = "sig_"
+    let g:sigPrefix_VIP = ""
 
 To change the instance's name suffix, change the global variable g:instSuffix_VIP.
 Set it to an empty string ("") if you don't want a suffix.
-    :let g:instSuffix_VIP = "_"
-    :let g:instSuffix_VIP = ""
+    let g:instSuffix_VIP = "_"
+    let g:instSuffix_VIP = ""
 
 To change the entity word, change the global variable g:entityWord_VIP.
-    :let g:entityWord_VIP = "Entity"
-    :let g:entityWord_VIP = "ENTITY"
+    let g:entityWord_VIP = "Entity"
+    let g:entityWord_VIP = "ENTITY"
 
 To change the component word, change the global variable g:componentWord_VIP.
-    :let g:componentWord_VIP = "Component"
-    :let g:componentWord_VIP = "COMPONENT"
+    let g:componentWord_VIP = "Component"
+    let g:componentWord_VIP = "COMPONENT"
 
 To disable the auto-incrementation of the instance's name, set the global variable g:autoInc_VIP to 0.
-    :let g:autoInc_VIP = 0 " auto-incrementation disabled
-    :let g:autoInc_VIP = 1 " auto-incrementation allowed
+    let g:autoInc_VIP = 0 " auto-incrementation disabled
+    let g:autoInc_VIP = 1 " auto-incrementation allowed
+
+Add to your vimrc file any variable you want to change permanently.
+
+You can remap the commands to any key you want by using the "nmap" command.@@
+For example, you can add to your vimrc file :
+
+nmap <F2> :Viy<CR>@@
+nmap <F3> :Vie<CR>@@
+nmap <F4> :Vic<CR>@@
+nmap <F5> :Vii<CR>@@
+
+__Note__ : don't use <F1>, it is already used for help.
 
 
 ==============================================================================
 == Download, Feedback and Contact ==
-Download : TODO@@
+Download : http://www.vim.org/scripts/@@
 Contact, feedback : http://www.microreflexion.com/?page_id=9 @@
 Source code : http://gitorious.org/vip
 
@@ -341,6 +336,12 @@ http://www.gnu.org/licenses/
 
 ==============================================================================
 == History ==
+=== Version 1.0.0 ; nov. 17 2010 ===
+ - First public release
+ - Added verification of existing global variable
+ - Documentation updated
+
+
 === Version 0.1.5 ; nov. 16 2010 ===
  - Added auto-incrementation on / off
  - Documentation updated

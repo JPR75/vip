@@ -69,12 +69,12 @@
 
 
 
-  component b_c is port(
+  component b_d is port(
       INPUT  : in  std_logic; -- comment comment comment
       SEL    : in  std_logic; -- comment comment comment
       OUTPUT : out std_logic  -- comment comment comment
     );
-  end component b_c;
+  end component b_d;
 
 
 
