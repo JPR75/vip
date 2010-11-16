@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.4
-" Last Change: nov. 14 2010
+" Version:     0.1.5
+" Last Change: nov. 16 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -13,10 +13,11 @@ endif
 let g:loaded_VIP = 1
 
 " Global variables for user
-let g:instSuffix_VIP = "_" " the suffix added at the end of an instance name
-let g:sigPrefix_VIP = "s_" " the prefix added to signals names
-let g:entityWord_VIP = "entity" " the 'entity' word when pasted as entity
+let g:instSuffix_VIP = "_"            " the suffix added at the end of an instance name
+let g:sigPrefix_VIP = "s_"            " the prefix added to signals names
+let g:entityWord_VIP = "entity"       " the 'entity' word when pasted as entity
 let g:componentWord_VIP = "component" " the 'component' word when pasted as component
+let g:autoInc_VIP = 1                 " allows auto-incrementation of instance's name
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Simple paste
@@ -40,7 +41,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Paste an instance of component as an instance of component
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function s:PasteII(instanceNumb, instSuffix, yankBlock)
+function s:PasteII(autoInc, instanceNumb, instSuffix, yankBlock)
   let copyBlock = copy(a:yankBlock) " to avoid alteration of the original block
   let currentList = split(copyBlock[0])
   let pos = 0
@@ -56,14 +57,19 @@ function s:PasteII(instanceNumb, instSuffix, yankBlock)
 
   if posNumb > 0
     " Instance has already a suffix
-    let posNumb += strlen(a:instSuffix)
-    let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
-    let instNumb += a:instanceNumb
-    let newName = strpart(currentList[0], 0, posNumb)
-    let currentList[0] = newName.instNumb
+    if a:autoInc == 1
+      let posNumb += strlen(a:instSuffix)
+      let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
+      let instNumb += a:instanceNumb
+      let newName = strpart(currentList[0], 0, posNumb)
+      let currentList[0] = newName.instNumb
+    endif
   else
     " Instance hasn't a suffix, adding a suffix
-    let currentList[0] = currentList[0].a:instSuffix.a:instanceNumb
+    let currentList[0] = currentList[0].a:instSuffix
+    if a:autoInc == 1
+      let currentList[0] = currentList[0].a:instanceNumb
+    endif
   endif
 
   let copyBlock[0] = join(currentList)
@@ -285,8 +291,7 @@ function s:Action(actionToDo)
       if (a:actionToDo == "component")
       endif
       if (a:actionToDo == "instance")
-        "let result = s:SPaste(s:VHDLBlock)
-        let result = s:PasteII(s:instanceNumb, g:instSuffix_VIP, s:VHDLBlock)
+        let result = s:PasteII(g:autoInc_VIP, s:instanceNumb, g:instSuffix_VIP, s:VHDLBlock)
         let s:instanceNumb += 1
       endif
     endif

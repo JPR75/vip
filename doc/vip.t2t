@@ -3,9 +3,13 @@
 %!postproc(xhtml): @@ <br />
 %!postproc(txt): "@@" ""
 %!postproc(art): "@@" ""
+%!options: --toc --toc-level 2
 
 = VIP : VHDL Interface Plugin =
 
+%%toc
+
+==============================================================================
 == Introduction ==
 **VIP** (//VHDL Interface Plug-in//) is a script for VIM text editor (http://www.vim.org/) which provides some facilities to copy paste entities, components and instances of components.@@
 For example you can copy the component :
@@ -51,6 +55,7 @@ VIP tries to respect your indentation as much as possible (spaces, tabs, spaces 
 It can work with many differenst styles of writing entities and components, but not all of them. See the "Formatting Blocks" section.
 
 
+==============================================================================
 == Installation ==
 Put the plugin/vip.vim file into your ~/.vim/plugin (or $HOME\vimfiles\plugin) directory.@@
 Put the doc/vip.txt into your ~/.vim/doc (or $HOME\vimfiles\doc) directory.
@@ -58,6 +63,7 @@ Put the doc/vip.txt into your ~/.vim/doc (or $HOME\vimfiles\doc) directory.
 Run ":helptags ~/.vim/doc" (":helptags $HOME/vimfiles/doc")
 
 
+==============================================================================
 == Commands ==
 **:Viy** or **<leader>y** copy a block (entity, component or instance of component) [**V**hdl **I**nterface **Y**ank]@@
 **:Vie** or **<leader>e** paste as entity [**V**hdl **I**nterface **E**ntity]@@
@@ -129,6 +135,8 @@ If the instance name has a suffix, the suffix number is incremented. Otherwise, 
     );
 ```
 
+
+==============================================================================
 === Remap commands ===
 You can remap those commands to any key you want by using the "nmap" command.@@
 For example, you can add to your vimrc file :@@
@@ -141,6 +149,7 @@ nmap <F5> :Vii<CR>@@
 __Note__ : don't use <F1>, it is already used for help.
 
 
+==============================================================================
 == Formatting Blocks ==
 VIP needs some formatting to parse correctly a block. It will fail to read a block if the opening brace is followed by text or if there is no "port" or "generic" keyword before the opening brace.
 
@@ -277,38 +286,42 @@ Here is some example of formatting which will **work** with VIP :
 ```
 
 
+==============================================================================
 == Configuration ==
 To avoid the loading of VIP plugin, you can set the global variable g:loaded_VIP to 1.
-
     :let g:loaded_sequence = 1
 
 To change the signal prefix, change the global variable g:sigPrefix_VIP.
-
+Set it to an empty string ("") if you don't want a prefix.
     :let g:sigPrefix_VIP = "sig_"
     :let g:sigPrefix_VIP = ""
 
 To change the instance's name suffix, change the global variable g:instSuffix_VIP.
-
-    :let g:instSuffix_VIP = "_U"
+Set it to an empty string ("") if you don't want a suffix.
+    :let g:instSuffix_VIP = "_"
     :let g:instSuffix_VIP = ""
 
 To change the entity word, change the global variable g:entityWord_VIP.
-
     :let g:entityWord_VIP = "Entity"
     :let g:entityWord_VIP = "ENTITY"
 
 To change the component word, change the global variable g:componentWord_VIP.
-
     :let g:componentWord_VIP = "Component"
     :let g:componentWord_VIP = "COMPONENT"
 
+To disable the auto-incrementation of the instance's name, set the global variable g:autoInc_VIP to 0.
+    :let g:autoInc_VIP = 0 " auto-incrementation disabled
+    :let g:autoInc_VIP = 1 " auto-incrementation allowed
 
+
+==============================================================================
 == Download, Feedback and Contact ==
 Download : TODO@@
 Contact, feedback : http://www.microreflexion.com/?page_id=9 @@
 Source code : http://gitorious.org/vip
 
 
+==============================================================================
 == License ==
 ```
 	Copyright (C) 2010 JP Ricaud
@@ -326,7 +339,13 @@ Source code : http://gitorious.org/vip
 http://www.gnu.org/licenses/
 
 
+==============================================================================
 == History ==
+=== Version 0.1.5 ; nov. 16 2010 ===
+ - Added auto-incrementation on / off
+ - Documentation updated
+
+
 === Version 0.1.4 ; nov. 14 2010 ===
  - Added auto-incrementation of instance name
  - Documentation updated
