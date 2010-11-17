@@ -1,6 +1,6 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.0.0
+" Version:     0.1.6
 " Last Change: nov. 17 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
@@ -100,41 +100,51 @@ function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   let openBlock = 0
   let closeBrace = 0
   let i = 0
-  let braceAtEnd = 0
+  let braceAtEOL = 0
   let portAtLine = 0
 
   " Get signals inside entity / component
   while ((braceCnt != 0) || (closeBrace == 0))
     let currentList = split(a:yankBlock[i])
     let currentLine = a:yankBlock[i]
-    let signalAfter = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
-    let signalName = substitute(signalAfter, "\[ \t]", "", "g") " remove space & tab at begenning of line
+    let signalBefore = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
+    let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
+    let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
+    if match(signalName, "--") != -1
+      let vhdlComment = 1
+    else
+      let vhdlComment = 0
+    endif
+
     for currentWord in currentList
       if (currentWord ==? "port") || (currentWord ==? "port(")
         let openBlock = 1 "Opening of the block detected
       endif
+
       if ((match(currentWord, "(") != -1) && (openBlock == 1))
         let braceCnt += 1
       endif
-      if ((match(currentWord, ")") != -1) && (openBlock == 1))
+
+     if ((match(currentWord, ")") != -1) && (openBlock == 1))
         let braceCnt -= 1
         let closeBrace = 1
         if match(currentWord, "))") != -1 " in case of a (m downto n));
           let braceCnt -= 1 " the first ) has been counted above, the second is counted here
         endif
         if ((braceCnt == 0) && (signalName == ");")) " have we a closing brace at a new line ?
-          let braceAtEnd = 0
+          let braceAtEOL = 0
         else
-          let braceAtEnd = 1 " closing brace at a new line
+          let braceAtEOL = 1 " closing brace at a new line
         endif
       endif
     endfor
+
     if (signalName ==? "port (") || (signalName ==? "port(")
       let portAtLine = 1
       let instanceBlock += [substitute(currentLine, "port", "port map", "")]
     else
-      if ((braceCnt > 0) || (braceAtEnd == 1))
-        let instanceBlock += [signalAfter." => ".a:sigPrefix.signalName.","]
+      if (((braceCnt > 0) || (braceAtEOL == 1)) && (vhdlComment == 0))
+        let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
       else
         let instanceBlock += [currentLine] " add generic
       endif
@@ -151,10 +161,11 @@ function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   else
     let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]
   endif
-  if braceAtEnd == 0
+  if braceAtEOL == 0
     let instanceBlock[i-2] = substitute(instanceBlock[i-2], "\,", "", "g") " remove the , of last signal
+    let instanceBlock[i-1] = instanceBlock[i-1].";"  " add the ; of the last brace
   else
-    let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", ");", "g") " remove the , of last signal
+    let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", " );", "g") " remove the , of last signal
   endif
   let instanceBlock += [""] " Add a blank line after the instance
   call append(line("."), instanceBlock)
@@ -176,7 +187,7 @@ function s:CopyLines(blockType)
     let currentLine += [getline(fLine + i)]
     let currentList = split(currentLine[i])
     if currentList == []
-      echohl WarningMsg | echo  "error : end of block not detected, missing \");\" ?" | echohl None
+      echohl WarningMsg | echo  "error : end of block not detected, missing \")\" or \");\" ?" | echohl None
       return []
     endif
     for currentWord in currentList

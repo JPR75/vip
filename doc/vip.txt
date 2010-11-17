@@ -162,7 +162,16 @@ FORMATTING BLOCKS                                             *vip-formatting*
 
 VIP needs some formatting to parse correctly a block. It will fail to read a
 block if the opening brace is followed by text or if there is no "port" or
-"generic" keyword before the opening brace in the same line.
+"generic" keyword before the opening brace on the same line.
+Do not put a blank line inside your block. VIP stops at a blank line, this is to
+avoid parsing the whole file if a closing brace is missing. Instead of a blank line, use a comment line.
+Each signal shuld be on a separate line
+
+To resume :
+  - No text after the opening brace
+  - "port" or "generic" before the opening brace, on the same line
+  - No blank line in the body of the block
+  - Each signal should be on separate line
 
 Here is some examples of formatting which ** WILL NOT ** work with VIP :
 
@@ -182,7 +191,7 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
       port  (  INPUT  : in  std_logic_vector (15 downto 0);
         OUTPUT : out std_logic
       );
-      end component mux;
+    end component mux;
 
     -- Bad formatting
     -- Comment after the opening brace
@@ -190,12 +199,31 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
       port  (   -- bad placed comment
         INPUT  : in  std_logic_vector (15 downto 0);
         OUTPUT : out std_logic
-        );
-      end component mux;
+      );
+    end component mux;
 
     -- Bad formatting
     -- Text after the opening brace
     U0 : clock port map ( CLK => s_CLK );
+
+    -- Bad formatting
+    -- Blank line in the component body
+    component mux is
+      port  (
+        INPUT  : in  std_logic_vector (15 downto 0);
+
+        OUTPUT : out std_logic
+      );
+    end component mux;
+
+    -- Bad formatting
+    -- Several signal on same line
+    entity dsr is
+     port (
+      D, CLK, S : in std_logic;
+      Q : out std_logic);
+    end entity dsr;
+
 <
 
 Here is some examples of formatting which will work with VIP :
@@ -227,6 +255,16 @@ Here is some examples of formatting which will work with VIP :
     end component mux;
 
     -- Good formatting for VIP
+    component mux is
+      port  (
+        -- inputs
+        INPUT  : in  std_logic_vector (15 downto 0);
+        -- output
+        OUTPUT : out std_logic
+      );
+    end component mux;
+
+    -- Good formatting for VIP
     U0 : clock port map (
       DATA     => s_DATA,
       CLK        => s_CLK,
@@ -253,8 +291,8 @@ Here is some examples of formatting which will work with VIP :
       CLK     => s_CLKOUT0(0)
     );
 
-   -- Good formatting for VIP
-   U5 : mux
+    -- Good formatting for VIP
+    U4 : mux
     generic map (
       g_WIDTH => 14
     )
@@ -265,7 +303,8 @@ Here is some examples of formatting which will work with VIP :
       CLK => s_CLKOUT0(0)
     );
 
-    U8 : mux generic map (g_WIDTH => 14)
+    -- Good formatting for VIP
+    U5 : mux generic map (g_WIDTH => 14)
     port map (
       DATA    => s_DATA,
       CLK     => s_CLK,
@@ -359,10 +398,11 @@ LICENSE                                                          *vip-license*
 ==============================================================================
 HISTORY                                                          *vip-history*
 
-Version 1.0.0 ; nov. 17 2010 ~
+Version 0.1.6 ; nov. 17 2010 ~
 ----------------------------
- - First public release
  - Added verification of existing global variable
+ - Added verification of comment lines
+ - Fixed ; after generic brace
  - Documentation updated
 
 
