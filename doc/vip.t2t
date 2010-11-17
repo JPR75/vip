@@ -51,7 +51,7 @@ VIP can
  - an instance (with auto-incrementation of the suffix number)
 
 
-VIP tries to respect your indentation as much as possible (spaces, tabs, spaces + tabs).
+VIP tries to respect your indentation as much as possible (spaces, tabs, spaces + tabs).@@
 It can work with many different styles of writing entities, components and instances, but not all of them. See the "Formatting Blocks" section.
 
 
@@ -90,7 +90,7 @@ If you copy the component (or the entity) :
       SEL    : in  std_logic;
       OUTPUT : out std_logic
     );
-  end component b_a;
+  end component mux;
 ```
 
 and paste it as an instance. The copy will be :
@@ -271,29 +271,29 @@ Here is some examples of formatting which will **work** with VIP :
 
 ==============================================================================
 == Configuration ==
-To avoid the loading of VIP plugin, you can set the global variable g:loaded_VIP to 1 in your vimrc file.
+To avoid the loading of VIP plugin, you can set the global variable g:loaded_VIP to 1 in your vimrc file.@@
     let g:loaded_sequence = 1
 
-To change the signal prefix, change the global variable g:sigPrefix_VIP.
-Set it to an empty string ("") if you don't want a prefix.
-    let g:sigPrefix_VIP = "sig_"
+To change the signal prefix, change the global variable g:sigPrefix_VIP.@@
+Set it to an empty string ("") if you don't want a prefix.@@
+    let g:sigPrefix_VIP = "sig_"@@
     let g:sigPrefix_VIP = ""
 
-To change the instance's name suffix, change the global variable g:instSuffix_VIP.
-Set it to an empty string ("") if you don't want a suffix.
-    let g:instSuffix_VIP = "_"
+To change the instance's name suffix, change the global variable g:instSuffix_VIP.@@
+Set it to an empty string ("") if you don't want a suffix.@@
+    let g:instSuffix_VIP = "_"@@
     let g:instSuffix_VIP = ""
 
-To change the entity word, change the global variable g:entityWord_VIP.
-    let g:entityWord_VIP = "Entity"
+To change the entity word, change the global variable g:entityWord_VIP.@@
+    let g:entityWord_VIP = "Entity"@@
     let g:entityWord_VIP = "ENTITY"
 
-To change the component word, change the global variable g:componentWord_VIP.
-    let g:componentWord_VIP = "Component"
+To change the component word, change the global variable g:componentWord_VIP.@@
+    let g:componentWord_VIP = "Component"@@
     let g:componentWord_VIP = "COMPONENT"
 
-To disable the auto-incrementation of the instance's name, set the global variable g:autoInc_VIP to 0.
-    let g:autoInc_VIP = 0 " auto-incrementation disabled
+To disable the auto-incrementation of the instance's name, set the global variable g:autoInc_VIP to 0.@@
+    let g:autoInc_VIP = 0 " auto-incrementation disabled@@
     let g:autoInc_VIP = 1 " auto-incrementation allowed
 
 Add to your vimrc file any variable you want to change permanently.
