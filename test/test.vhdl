@@ -169,6 +169,93 @@
   end component e_c;
 
 
+  component e_d is
+    generic (
+      -- comment
+      --comment
+      g_WIDTH : positive := 4); port (
+      --comment
+      DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
+      -- comment
+      --comment
+      CLK     : in  std_logic; -- comment comment comment
+      RST_SRn : in  std_logic; -- comment comment comment
+      CLK : out std_logic);
+  end component e_d;
+
+
+  component e_e is
+    generic (
+      -- comment
+      --comment
+      );
+    port (
+      --comment
+      -- comment
+      --comment
+      );
+  end component e_e;
+
+
+  component e_f is
+    generic ( );
+    port ( );
+  end component e_f;
+
+
+  component ADD
+   generic (
+  N : positive range 0 to 16);
+   port (
+  A: in std_logic_vector(N-1 downto 0);
+  B: in std_logic_vector(N-1 downto 0);
+  S: out std_logic_vector(N-1 downto 0));
+  end component;
+
+
+     component AND2
+           generic (DELAY: time :=5ns);
+           port (
+             in1: in std_logic;
+             out1: out std_logic);
+     end component;
+
+
+  component reg32 is
+     generic (
+               setup_time : time := 50 ps;
+               pulse_width : time := 100 ps  );
+     port (
+            input : in std_logic_vector(31 downto 0);
+            output: out std_logic_vector(31 downto 0);
+            Load  : in  std_logic_vector;
+            Clk   : in  std_logic_vector );
+  end component reg32;
+
+
+  component reg32 is
+     generic ( 	   
+               setup_time : time := 50 ps;
+               setup_ti : time := 50 ps;
+               setup : time := 50 ps;
+               pulse_width : time := 100 ps  );
+     port ( 	   
+            input : in std_logic_vector(31 downto 0);
+            output: out std_logic_vector(31 downto 0);
+            Load  : in  std_logic_vector;
+            Clk   : in  std_logic_vector );
+  end component reg32;
+
+  
+  component reg32 is
+     generic ( setup_time : time := 50 ps;
+               pulse_width : time := 100 ps  );
+     port ( input : in std_logic_vector(31 downto 0);
+            output: out std_logic_vector(31 downto 0);
+            Load  : in  std_logic_vector;
+            Clk   : in  std_logic_vector );
+  end component reg32;
+
 ---------------------------------------------------------------------------------
 -- Instances
 ---------------------------------------------------------------------------------

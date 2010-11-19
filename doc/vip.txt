@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: nov. 17 2010
+Last Change: nov. 19 2010
 
 Contents:
 
@@ -397,6 +397,11 @@ LICENSE                                                          *vip-license*
 
 ==============================================================================
 HISTORY                                                          *vip-history*
+
+Version 0.1.7 ; nov. 19 2010 ~
+----------------------------
+ - Fixed generic() parser
+
 
 Version 0.1.6 ; nov. 17 2010 ~
 ----------------------------

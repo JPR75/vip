@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.6
-" Last Change: nov. 17 2010
+" Version:     0.1.7
+" Last Change: nov. 19 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -97,76 +97,98 @@ endfunction
 function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   let instanceBlock = []
   let braceCnt = 0
-  let openBlock = 0
-  let closeBrace = 0
+  let inPort = 0
+  let inGeneric = 0
   let i = 0
-  let braceAtEOL = 0
-  let portAtLine = 0
-
-  " Get signals inside entity / component
-  while ((braceCnt != 0) || (closeBrace == 0))
-    let currentList = split(a:yankBlock[i])
-    let currentLine = a:yankBlock[i]
-    let signalBefore = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
-    let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
-    let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
-    if match(signalName, "--") != -1
-      let vhdlComment = 1
-    else
-      let vhdlComment = 0
-    endif
-
-    for currentWord in currentList
-      if (currentWord ==? "port") || (currentWord ==? "port(")
-        let openBlock = 1 "Opening of the block detected
-      endif
-
-      if ((match(currentWord, "(") != -1) && (openBlock == 1))
-        let braceCnt += 1
-      endif
-
-     if ((match(currentWord, ")") != -1) && (openBlock == 1))
-        let braceCnt -= 1
-        let closeBrace = 1
-        if match(currentWord, "))") != -1 " in case of a (m downto n));
-          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
-        endif
-        if ((braceCnt == 0) && (signalName == ");")) " have we a closing brace at a new line ?
-          let braceAtEOL = 0
-        else
-          let braceAtEOL = 1 " closing brace at a new line
-        endif
-      endif
-    endfor
-
-    if (signalName ==? "port (") || (signalName ==? "port(")
-      let portAtLine = 1
-      let instanceBlock += [substitute(currentLine, "port", "port map", "")]
-    else
-      if (((braceCnt > 0) || (braceAtEOL == 1)) && (vhdlComment == 0))
-        let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
-      else
-        let instanceBlock += [currentLine] " add generic
-      endif
-    endif
-    let i += 1
-  endwhile
+  let nbOfLines = len(a:yankBlock) - 3
 
   " Head and tail of the instance
   let instanceName = split(a:yankBlock[0])
   let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
   let indentVal = strpart(a:yankBlock[0], 0, indentPos)
-  if portAtLine == 0
-    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]." port map ("
-  else
-    let instanceBlock[0] = indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]
-  endif
-  if braceAtEOL == 0
-    let instanceBlock[i-2] = substitute(instanceBlock[i-2], "\,", "", "g") " remove the , of last signal
-    let instanceBlock[i-1] = instanceBlock[i-1].";"  " add the ; of the last brace
-  else
-    let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", " );", "g") " remove the , of last signal
-  endif
+  let instanceBlock += [indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]]
+
+  " Get signals inside entity / component
+  for i in range(0, nbOfLines)
+    let currentList = split(a:yankBlock[i])
+    let currentLine = a:yankBlock[i]
+    let signalBefore = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
+    let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
+    let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
+
+    if match(signalName, "--") != -1
+      let vhdlComment = 1
+      let instanceBlock += [currentLine] " add comment
+    else
+      let vhdlComment = 0
+    endif
+
+    let j = 0
+    for currentWord in currentList
+
+      if (currentWord ==? "generic") || (currentWord ==? "generic(")
+        let inGeneric = 1 " inside generic body
+        let j = 1 " skip this line
+        if (signalName ==? "generic (") || (signalName ==? "generic(")
+          let instanceBlock += [indentVal."generic map ("]
+        else
+          let instanceBlock[i] = instanceBlock[i]." generic map ("
+        endif
+      endif
+
+      if (currentWord ==? "port") || (currentWord ==? "port(")
+        let inPort = 1 " inside port body
+        let j = 1 " skip this line
+        if (signalName ==? "port (") || (signalName ==? "port(")
+          let instanceBlock += [indentVal."port map ("]
+        else
+          let instanceBlock[i] = instanceBlock[i]." port map ("
+        endif
+      endif
+
+      if (match(currentWord, "(") != -1)
+        let braceCnt += 1
+      endif
+
+      if (braceCnt > 0) && (j == 0) && (vhdlComment == 0)
+        if inGeneric == 1
+          let instanceBlock += [signalBefore." => ,"]
+        endif
+        if inPort == 1
+          let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
+        endif
+      endif
+
+      if (match(currentWord, ")")) != -1
+        let braceCnt -= 1
+        if match(currentWord, "))") != -1 " in case of a (m downto n));
+          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+        endif
+        if braceCnt == 0
+          if signalName == ");" " have we a closing brace at a new line ?
+            let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", "", "g") " remove the , of last signal
+            let instanceBlock[i] = currentLine
+          else
+            let instanceBlock[i] = substitute(instanceBlock[i], "\,", "", "g") " remove the , of last signal
+            let instanceBlock[i] = instanceBlock[i]." )"
+          endif
+
+          if inGeneric == 1
+            let inGeneric = 0
+          endif
+          if inPort == 1
+            let inPort = 0
+            let instanceBlock[i] = instanceBlock[i].";"
+          endif
+
+        endif
+      endif
+
+      let j += 1
+   endfor
+
+  endfor
+
   let instanceBlock += [""] " Add a blank line after the instance
   call append(line("."), instanceBlock)
   return 1
