@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: nov. 19 2010
+Last Change: nov. 20 2010
 
 Contents:
 
@@ -116,7 +116,7 @@ If you copy the component (or the entity) :
 and paste it as an instance. The copy will be :
 
 >
-    mux_0 : mux
+    i_mux_0 : mux
       port map (
         INPUT   => s_INPUT,
         SEL     => s_SEL,
@@ -127,6 +127,7 @@ and paste it as an instance. The copy will be :
 The name of the instance is a duplication of the component's name with a
 suffix ("_0") added. The suffix number is auto-incremented when you do
 multiple paste of the same component.
+Additionally, you can add a prefix before the instance name ("i_").
 
 To copy an instance, place the cursor on the line with the instance name :
 
@@ -165,18 +166,18 @@ block if the opening brace is followed by text or if there is no "port" or
 "generic" keyword before the opening brace on the same line.
 Do not put a blank line inside your block. VIP stops at a blank line, this is to
 avoid parsing the whole file if a closing brace is missing. Instead of a blank line, use a comment line.
-Each signal shuld be on a separate line
+Each signal should be on a separate line
 
 To resume :
   - No text after the opening brace
   - "port" or "generic" before the opening brace, on the same line
   - No blank line in the body of the block
-  - Each signal should be on separate line
+  - Each signal should be on a separate line
 
 Here is some examples of formatting which ** WILL NOT ** work with VIP :
 
 >
-    -- Bad formatting
+    -- Bad formatting for VIP
     -- No "port" or "generic" before the opening brace
     component mux is port
     (
@@ -185,16 +186,16 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
     );
     end component mux;
 
-    -- Bad formatting
-    -- Text after the opening brace
+    -- Bad formatting for VIP
+    -- Text after the "port" opening brace
     component mux is
       port  (  INPUT  : in  std_logic_vector (15 downto 0);
         OUTPUT : out std_logic
       );
     end component mux;
 
-    -- Bad formatting
-    -- Comment after the opening brace
+    -- Bad formatting for VIP
+    -- Comment after the "port" opening brace
     component mux is
       port  (   -- bad placed comment
         INPUT  : in  std_logic_vector (15 downto 0);
@@ -202,11 +203,21 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
       );
     end component mux;
 
-    -- Bad formatting
-    -- Text after the opening brace
+    -- Bad formatting for VIP
+    -- Text after the "port" opening brace
     U0 : clock port map ( CLK => s_CLK );
 
-    -- Bad formatting
+    -- Bad formatting for VIP
+    -- Text after the "generic" opening brace
+    component mux is
+    generic (g_WIDTH => 14)
+    port (
+      DATA    : in std_logic;
+      RST_SRn : in std_logic;
+      CLK     : out std_logic
+    );
+
+    -- Bad formatting for VIP
     -- Blank line in the component body
     component mux is
       port  (
@@ -216,8 +227,8 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
       );
     end component mux;
 
-    -- Bad formatting
-    -- Several signal on same line
+    -- Bad formatting for VIP
+    -- Several signals on same line
     entity dsr is
      port (
       D, CLK, S : in std_logic;
@@ -257,9 +268,9 @@ Here is some examples of formatting which will work with VIP :
     -- Good formatting for VIP
     component mux is
       port  (
-        -- inputs
+        -- comment instead of blank line
         INPUT  : in  std_logic_vector (15 downto 0);
-        -- output
+        ----------------------
         OUTPUT : out std_logic
       );
     end component mux;
@@ -282,16 +293,6 @@ Here is some examples of formatting which will work with VIP :
     );
 
     -- Good formatting for VIP
-    U3 : mux
-    generic map (g_WIDTH => 14)
-    port map (
-      DATA    => s_DATA,
-      CLK     => s_CLK,
-      RST_SRn => s_RSTn,
-      CLK     => s_CLKOUT0(0)
-    );
-
-    -- Good formatting for VIP
     U4 : mux
     generic map (
       g_WIDTH => 14
@@ -304,7 +305,8 @@ Here is some examples of formatting which will work with VIP :
     );
 
     -- Good formatting for VIP
-    U5 : mux generic map (g_WIDTH => 14)
+    U5 : mux generic map (
+      g_WIDTH => 14 )
     port map (
       DATA    => s_DATA,
       CLK     => s_CLK,
@@ -327,33 +329,47 @@ Set it to an empty string ("") if you don't want a prefix. >
 
     let g:sigPrefix_VIP = "sig_"
     let g:sigPrefix_VIP = ""
-<
 
+  by default set to "s_"
+<
+To change the instance's name prefix, change the global variable
+g:instPrefix_VIP.
+Set it to an empty string ("") if you don't want a suffix. >
+
+    let g:instPrefix_VIP = "i_"
+    let g:instPrefix_VIP = ""
+
+  by default set to ""
+<
 To change the instance's name suffix, change the global variable
 g:instSuffix_VIP.
 Set it to an empty string ("") if you don't want a suffix. >
 
     let g:instSuffix_VIP = "_"
     let g:instSuffix_VIP = ""
-<
 
+  by default set to "_"
+<
 To change the entity word, change the global variable g:entityWord_VIP. >
     let g:entityWord_VIP = "Entity"
     let g:entityWord_VIP = "ENTITY"
 
+  by default set to "entity"
 <
-
 To change the component word, change the global variable g:componentWord_VIP. >
 
     let g:componentWord_VIP = "Component"
     let g:componentWord_VIP = "COMPONENT"
-<
 
+  by default set to "component"
+<
 To disable the auto-incrementation of the instance's name, set the global
 variable g:autoInc_VIP to 0. >
 
     let g:autoInc_VIP = 0 " auto-incrementation disabled
     let g:autoInc_VIP = 1 " auto-incrementation allowed
+
+  by default set to 1
 <
 
 Add to your vimrc file any variable you want to change permanently.
@@ -397,6 +413,13 @@ LICENSE                                                          *vip-license*
 
 ==============================================================================
 HISTORY                                                          *vip-history*
+
+Version 1.0.0 ; nov. 20 2010 ~
+----------------------------
+ - Added instance prefix
+ - Added try / catch for unexpected errors
+ - Documentation updated
+
 
 Version 0.1.7 ; nov. 19 2010 ~
 ----------------------------

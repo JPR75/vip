@@ -162,7 +162,7 @@
       --comment
       DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
       -- comment
-      --comment
+      -----------------------
       CLK     : in  std_logic; -- comment comment comment
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic);

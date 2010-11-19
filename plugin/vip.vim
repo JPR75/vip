@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     0.1.7
-" Last Change: nov. 19 2010
+" Version:     1.0.0
+" Last Change: nov. 20 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -12,7 +12,10 @@ if exists("g:loaded_VIP")
 endif
 let g:loaded_VIP = 1
 
-" Global variables for user
+" Global variables
+if !exists("g:instPrefix_VIP")
+  let g:instPrefix_VIP = ""             " the prefix added at the beginning of an instance name
+endif
 if !exists("g:instSuffix_VIP")
   let g:instSuffix_VIP = "_"            " the suffix added at the end of an instance name
 endif
@@ -57,30 +60,35 @@ function s:PasteII(autoInc, instanceNumb, instSuffix, yankBlock)
   let pos = 0
   let posN = 0
 
-  " Let's check if the instance has already a suffix
-  " Get the position of the last suffix in the name if it exisits
-  while posN != -1
-    let posNumb = posN
-    let pos += 1
-    let posN = match(currentList[0], a:instSuffix, pos)
-  endwhile
+  try
+    " Let's check if the instance has already a suffix
+    " Get the position of the last suffix in the name if it exisits
+    while posN != -1
+      let posNumb = posN
+      let pos += 1
+      let posN = match(currentList[0], a:instSuffix, pos)
+    endwhile
 
-  if posNumb > 0
-    " Instance has already a suffix
-    if a:autoInc == 1
-      let posNumb += strlen(a:instSuffix)
-      let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
-      let instNumb += a:instanceNumb
-      let newName = strpart(currentList[0], 0, posNumb)
-      let currentList[0] = newName.instNumb
+    if posNumb > 0
+      " Instance has already a suffix
+      if a:autoInc == 1
+        let posNumb += strlen(a:instSuffix)
+        let instNumb = str2nr(strpart(currentList[0], posNumb)) + 1
+        let instNumb += a:instanceNumb
+        let newName = strpart(currentList[0], 0, posNumb)
+        let currentList[0] = newName.instNumb
+      endif
+    else
+      " Instance hasn't a suffix, adding a suffix
+      let currentList[0] = currentList[0].a:instSuffix
+      if a:autoInc == 1
+        let currentList[0] = currentList[0].a:instanceNumb
+      endif
     endif
-  else
-    " Instance hasn't a suffix, adding a suffix
-    let currentList[0] = currentList[0].a:instSuffix
-    if a:autoInc == 1
-      let currentList[0] = currentList[0].a:instanceNumb
-    endif
-  endif
+  catch
+    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    return 0
+  endtry
 
   let copyBlock[0] = join(currentList)
   " Let's add the original indentation of the instance
@@ -94,7 +102,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Paste a component / entity as an instance of component
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
+function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
   let instanceBlock = []
   let braceCnt = 0
   let inPort = 0
@@ -106,88 +114,97 @@ function s:PasteECI(instanceNumb, instSuffix, sigPrefix, yankBlock)
   let instanceName = split(a:yankBlock[0])
   let indentPos = match(a:yankBlock[0], "[a-zA-Z]") " first char of an identifiers must be a letter
   let indentVal = strpart(a:yankBlock[0], 0, indentPos)
-  let instanceBlock += [indentVal.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]]
+  let instanceBlock += [indentVal.a:instPrefix.instanceName[1].a:instSuffix.a:instanceNumb." : ".instanceName[1]]
 
-  " Get signals inside entity / component
-  for i in range(0, nbOfLines)
-    let currentList = split(a:yankBlock[i])
-    let currentLine = a:yankBlock[i]
-    let signalBefore = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
-    let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
-    let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
+  try
+    " Get signals inside entity / component
+    for i in range(0, nbOfLines)
+      let currentList = split(a:yankBlock[i])
+      let currentLine = a:yankBlock[i]
+      let signalBefore = substitute(currentLine, "\:.*$", "", "g") " remove everything after :
+      let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
+      let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
 
-    if match(signalName, "--") != -1
-      let vhdlComment = 1
-      let instanceBlock += [currentLine] " add comment
-    else
-      let vhdlComment = 0
-    endif
-
-    let j = 0
-    for currentWord in currentList
-
-      if (currentWord ==? "generic") || (currentWord ==? "generic(")
-        let inGeneric = 1 " inside generic body
-        let j = 1 " skip this line
-        if (signalName ==? "generic (") || (signalName ==? "generic(")
-          let instanceBlock += [indentVal."generic map ("]
-        else
-          let instanceBlock[i] = instanceBlock[i]." generic map ("
-        endif
+      if match(signalName, "--") != -1
+        let vhdlComment = 1
+        let instanceBlock += [currentLine] " add comment
+      else
+        let vhdlComment = 0
       endif
 
-      if (currentWord ==? "port") || (currentWord ==? "port(")
-        let inPort = 1 " inside port body
-        let j = 1 " skip this line
-        if (signalName ==? "port (") || (signalName ==? "port(")
-          let instanceBlock += [indentVal."port map ("]
-        else
-          let instanceBlock[i] = instanceBlock[i]." port map ("
-        endif
-      endif
+      let j = 0
+      for currentWord in currentList
 
-      if (match(currentWord, "(") != -1)
-        let braceCnt += 1
-      endif
-
-      if (braceCnt > 0) && (j == 0) && (vhdlComment == 0)
-        if inGeneric == 1
-          let instanceBlock += [signalBefore." => ,"]
-        endif
-        if inPort == 1
-          let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
-        endif
-      endif
-
-      if (match(currentWord, ")")) != -1
-        let braceCnt -= 1
-        if match(currentWord, "))") != -1 " in case of a (m downto n));
-          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
-        endif
-        if braceCnt == 0
-          if signalName == ");" " have we a closing brace at a new line ?
-            let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", "", "g") " remove the , of last signal
-            let instanceBlock[i] = currentLine
+        if (currentWord ==? "generic") || (currentWord ==? "generic(")
+          let inGeneric = 1 " inside generic body
+          let j = 1 " skip this line
+          if (signalName ==? "generic (") || (signalName ==? "generic(")
+            let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
+            let indentVal = strpart(a:yankBlock[i], 0, indentPos)
+            let instanceBlock += [indentVal."generic map ("]
           else
-            let instanceBlock[i] = substitute(instanceBlock[i], "\,", "", "g") " remove the , of last signal
-            let instanceBlock[i] = instanceBlock[i]." )"
+            let instanceBlock[i] = instanceBlock[i]." generic map ("
           endif
+        endif
 
+        if (currentWord ==? "port") || (currentWord ==? "port(")
+          let inPort = 1 " inside port body
+          let j = 1 " skip this line
+          if (signalName ==? "port (") || (signalName ==? "port(")
+            let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
+            let indentVal = strpart(a:yankBlock[i], 0, indentPos)
+            let instanceBlock += [indentVal."port map ("]
+          else
+            let instanceBlock[i] = instanceBlock[i]." port map ("
+          endif
+        endif
+
+        if (match(currentWord, "(") != -1)
+          let braceCnt += 1
+        endif
+
+        if (braceCnt > 0) && (j == 0) && (vhdlComment == 0)
           if inGeneric == 1
-            let inGeneric = 0
+            let instanceBlock += [signalBefore." => ,"]
           endif
           if inPort == 1
-            let inPort = 0
-            let instanceBlock[i] = instanceBlock[i].";"
+            let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
           endif
-
         endif
-      endif
 
-      let j += 1
-   endfor
+        if (match(currentWord, ")")) != -1
+          let braceCnt -= 1
+          if match(currentWord, "))") != -1 " in case of a (m downto n));
+            let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+          endif
+          if braceCnt == 0
+            if signalName == ");" " have we a closing brace at a new line ?
+              let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", "", "g") " remove the , of last signal
+              let instanceBlock[i] = currentLine
+            else
+              let instanceBlock[i] = substitute(instanceBlock[i], "\,", "", "g") " remove the , of last signal
+              let instanceBlock[i] = instanceBlock[i]." )"
+            endif
 
-  endfor
+            if inGeneric == 1
+              let inGeneric = 0
+            endif
+            if inPort == 1
+              let inPort = 0
+              let instanceBlock[i] = instanceBlock[i].";"
+            endif
+
+          endif
+        endif
+
+        let j += 1
+     endfor
+
+    endfor
+  catch
+    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    return 0
+  endtry
 
   let instanceBlock += [""] " Add a blank line after the instance
   call append(line("."), instanceBlock)
@@ -205,38 +222,44 @@ function s:CopyLines(blockType)
   let currentLine = []
   let fLine = line(".")
 
-  while ((braceCnt != 0) || (closeBrace == 0))
-    let currentLine += [getline(fLine + i)]
-    let currentList = split(currentLine[i])
-    if currentList == []
-      echohl WarningMsg | echo  "error : end of block not detected, missing \")\" or \");\" ?" | echohl None
-      return []
-    endif
-    for currentWord in currentList
-      if (currentWord==? "end")
-        echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
+  try
+    while ((braceCnt != 0) || (closeBrace == 0))
+      let currentLine += [getline(fLine + i)]
+      let currentList = split(currentLine[i])
+      if currentList == []
+        echohl WarningMsg | echo  "error : end of block not detected, missing \")\" or \");\" ?" | echohl None
         return []
       endif
-      if (currentWord ==? "port") || (currentWord ==? "port(")
-        let openBlock = 1 "Opening of the block detected
-      endif
-      if ((match(currentWord, "(") != -1) && (openBlock == 1))
-        let braceCnt += 1
-      endif
-      if ((match(currentWord, ")") != -1) && (openBlock == 1))
-        let braceCnt -= 1
-        let closeBrace = 1
-        if match(currentWord, "))") != -1 " in case of a (m downto n));
-          let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+      for currentWord in currentList
+        if (currentWord==? "end")
+          echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
+          return []
         endif
-      endif
-    endfor
-    let i += 1
-  endwhile
+        if (currentWord ==? "port") || (currentWord ==? "port(")
+          let openBlock = 1 "Opening of the block detected
+        endif
+        if ((match(currentWord, "(") != -1) && (openBlock == 1))
+          let braceCnt += 1
+        endif
+        if ((match(currentWord, ")") != -1) && (openBlock == 1))
+          let braceCnt -= 1
+          let closeBrace = 1
+          if match(currentWord, "))") != -1 " in case of a (m downto n));
+            let braceCnt -= 1 " the first ) has been counted above, the second is counted here
+          endif
+        endif
+      endfor
+      let i += 1
+    endwhile
 
-  if ((a:blockType == "entity") || (a:blockType == "component"))
-    let currentLine += [getline(fLine + i)] " Get the end entity / end component line
-  endif
+    if ((a:blockType == "entity") || (a:blockType == "component"))
+      let currentLine += [getline(fLine + i)] " Get the end entity / end component line
+    endif
+  catch
+    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    return 0
+  endtry
+
   let currentLine += [""] " let add a blank element to get an empty line after the block
   return currentLine
 endfunction
@@ -323,7 +346,7 @@ function s:Action(actionToDo)
         let result = s:SPaste(s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteECI(s:instanceNumb, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let result = s:PasteECI(s:instanceNumb, g:instPrefix_VIP, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
         let s:instanceNumb += 1
       endif
     endif
