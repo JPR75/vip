@@ -203,6 +203,26 @@
   end component e_f;
 
 
+  entity e_g is
+    generic
+    (
+      -- comment
+      --comment
+      g_WIDTH : positive := 4
+    );
+    port 
+    (
+      --comment
+      DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
+      -- comment
+      -----------------------
+      CLK     : in  std_logic; -- comment comment comment
+      RST_SRn : in  std_logic; -- comment comment comment
+      CLK : out std_logic (31 downto 0)
+    );
+  end entity e_g;
+
+
   component ADD
    generic (
   N : positive range 0 to 16);

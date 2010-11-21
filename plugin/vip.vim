@@ -1,6 +1,6 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.0.0
+" Version:     1.1.0
 " Last Change: nov. 20 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
@@ -161,6 +161,9 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
 
         if (match(currentWord, "(") != -1)
           let braceCnt += 1
+          if signalName == "(")
+            let j = 2 "skip this line
+          endif
         endif
 
         if (braceCnt > 0) && (j == 0) && (vhdlComment == 0)
