@@ -108,6 +108,7 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
   let inPort = 0
   let inGeneric = 0
   let i = 0
+  let j = -1
   let nbOfLines = len(a:yankBlock) - 3
 
   " Head and tail of the instance
@@ -125,48 +126,51 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
       let signalName = substitute(signalBefore, "\[ \t]", "", "g") " remove space & tab at begenning of line
       let currentLine = substitute(currentLine, "\;", "", "g") " remove the ;
 
+      let skipLine = 0
+      let j += 1
+
       if match(signalName, "--") != -1
-        let vhdlComment = 1
+        let skipLine = 1
         let instanceBlock += [currentLine] " add comment
-      else
-        let vhdlComment = 0
       endif
 
-      let j = 0
+      if signalName == "("
+        let skipLine = 1 " skip this line
+        let j -= 1
+      endif
+
+      let k = 0
       for currentWord in currentList
 
         if (currentWord ==? "generic") || (currentWord ==? "generic(")
           let inGeneric = 1 " inside generic body
-          let j = 1 " skip this line
-          if (signalName ==? "generic (") || (signalName ==? "generic(")
+          let skipLine = 1 " skip this line
+          if (signalName ==? "generic (") || (signalName ==? "generic(") || (signalName ==? "generic")
             let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
             let indentVal = strpart(a:yankBlock[i], 0, indentPos)
             let instanceBlock += [indentVal."generic map ("]
           else
-            let instanceBlock[i] = instanceBlock[i]." generic map ("
+            let instanceBlock[j] = instanceBlock[j]." generic map ("
           endif
         endif
 
         if (currentWord ==? "port") || (currentWord ==? "port(")
           let inPort = 1 " inside port body
-          let j = 1 " skip this line
-          if (signalName ==? "port (") || (signalName ==? "port(")
+          let skipLine = 1 " skip this line
+          if (signalName ==? "port (") || (signalName ==? "port(") || (signalName ==? "port")
             let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
             let indentVal = strpart(a:yankBlock[i], 0, indentPos)
             let instanceBlock += [indentVal."port map ("]
           else
-            let instanceBlock[i] = instanceBlock[i]." port map ("
+            let instanceBlock[j] = instanceBlock[j]." port map ("
           endif
         endif
 
         if (match(currentWord, "(") != -1)
           let braceCnt += 1
-          if signalName == "(")
-            let j = 2 "skip this line
-          endif
         endif
 
-        if (braceCnt > 0) && (j == 0) && (vhdlComment == 0)
+        if (braceCnt > 0) && (skipLine == 0) && (k == 0)
           if inGeneric == 1
             let instanceBlock += [signalBefore." => ,"]
           endif
@@ -182,11 +186,11 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
           endif
           if braceCnt == 0
             if signalName == ");" " have we a closing brace at a new line ?
-              let instanceBlock[i-1] = substitute(instanceBlock[i-1], "\,", "", "g") " remove the , of last signal
-              let instanceBlock[i] = currentLine
+              let instanceBlock[j-1] = substitute(instanceBlock[j-1], "\,", "", "g") " remove the , of last signal
+              let instanceBlock[j] = currentLine
             else
-              let instanceBlock[i] = substitute(instanceBlock[i], "\,", "", "g") " remove the , of last signal
-              let instanceBlock[i] = instanceBlock[i]." )"
+              let instanceBlock[j] = substitute(instanceBlock[j], "\,", "", "g") " remove the , of last signal
+              let instanceBlock[j] = instanceBlock[j]." )"
             endif
 
             if inGeneric == 1
@@ -194,14 +198,13 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
             endif
             if inPort == 1
               let inPort = 0
-              let instanceBlock[i] = instanceBlock[i].";"
+              let instanceBlock[j] = instanceBlock[j].";"
             endif
 
           endif
         endif
-
-        let j += 1
-     endfor
+        let k += 1
+      endfor
 
     endfor
   catch
@@ -336,7 +339,7 @@ function s:Action(actionToDo)
         let result = s:PasteEC(s:VHDLType, g:componentWord_VIP, s:VHDLBlock)
       endif
       if (a:actionToDo == "instance")
-        let result = s:PasteECI(s:instanceNumb, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
+        let result = s:PasteECI(s:instanceNumb, g:instPrefix_VIP, g:instSuffix_VIP, g:sigPrefix_VIP, s:VHDLBlock)
         let s:instanceNumb += 1
       endif
     endif

@@ -78,7 +78,7 @@
 
 
 
-  component c_a is
+  entity c_a is
     generic (g_WIDTH : positive := 4);
     port (
       DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
@@ -86,11 +86,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_a;
+  end entity c_a;
 
 
 
-  component c_b is
+  entity c_b is
     generic (
       g_WIDTH : positive := 4
     );
@@ -100,11 +100,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_b;
+  end entity c_b;
 
 
 
-  component c_c is
+  entity c_c is
     generic (
       g_WIDTH : positive := 4);
     port (
@@ -113,11 +113,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_c;
+  end entity c_c;
 
 
 
-  component c_d is
+  entity c_d is
     generic (
       g_WIDTH : positive := 4);
     port (
@@ -125,7 +125,7 @@
       CLK     : in  std_logic; -- comment comment comment
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic);
-  end component c_d;
+  end entity c_d;
 
 
   component e_a is
@@ -169,7 +169,7 @@
   end component e_c;
 
 
-  component e_d is
+  entity e_d is
     generic (
       -- comment
       --comment
@@ -181,7 +181,7 @@
       CLK     : in  std_logic; -- comment comment comment
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic);
-  end component e_d;
+  end entity e_d;
 
 
   component e_e is
@@ -197,10 +197,10 @@
   end component e_e;
 
 
-  component e_f is
+  entity e_f is
     generic ( );
     port ( );
-  end component e_f;
+  end entity e_f;
 
 
   entity e_g is
@@ -241,7 +241,7 @@
      end component;
 
 
-  component reg32 is
+  entity reg32 is
      generic (
                setup_time : time := 50 ps;
                pulse_width : time := 100 ps  );
@@ -250,7 +250,7 @@
             output: out std_logic_vector(31 downto 0);
             Load  : in  std_logic_vector;
             Clk   : in  std_logic_vector );
-  end component reg32;
+  end entity reg32;
 
 
   component reg32 is
@@ -267,14 +267,14 @@
   end component reg32;
 
   
-  component reg32 is
+  entity reg32 is
      generic ( setup_time : time := 50 ps;
                pulse_width : time := 100 ps  );
      port ( input : in std_logic_vector(31 downto 0);
             output: out std_logic_vector(31 downto 0);
             Load  : in  std_logic_vector;
             Clk   : in  std_logic_vector );
-  end component reg32;
+  end entity reg32;
 
 ---------------------------------------------------------------------------------
 -- Instances
