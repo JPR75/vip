@@ -276,6 +276,33 @@
             Clk   : in  std_logic_vector );
   end entity reg32;
 
+
+  component foo
+    port (
+           a, b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port (
+           a,b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port (a,b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port ( a,b: in bit;
+	  c: out bit );
+  end component;
+
+
 ---------------------------------------------------------------------------------
 -- Instances
 ---------------------------------------------------------------------------------
