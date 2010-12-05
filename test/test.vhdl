@@ -13,7 +13,7 @@
 
    
 
-	  component a_b is port (
+	  component a_b is PORT (
 	      DATA     : in std_logic_vector (31 downto 0); -- comment comment comment
       CLK        : in  std_logic;   -- comment comment comment
       	RST_SRn    : in  std_logic;   -- comment comment comment
@@ -90,7 +90,7 @@
 
 
 
-  entity c_b is
+  ENTITY c_b is
     generic (
       g_WIDTH : positive := 4
     );
@@ -303,6 +303,26 @@
   end component;
 
 
+  component foo
+    port ( a_port,b.toto: in bit;
+	  c: out bit );
+  end component;
+
+
+  component foo
+    port 	    (
+           a, 	    b: in bit;
+	  c: out bit 	   );
+  end component;
+
+  
+  component foo
+        generic ( a_port,b.toto: in bit;
+	  c: out bit );
+    port ( a_port,b.toto: in bit;
+	  c: out bit );
+  end component;
+
 ---------------------------------------------------------------------------------
 -- Instances
 ---------------------------------------------------------------------------------
@@ -338,7 +358,7 @@
   );
 
   U4 : e_b
-  generic map (g_WIDTH => 14)   -- comment comment comment
+  GENERIC MAP (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
@@ -347,7 +367,7 @@
 
   U5 : e_c
   generic map (g_WIDTH => 14)   -- comment comment comment
-  port map (
+  PORT MAP (
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
@@ -357,7 +377,7 @@
   generic map (
     g_WIDTH => 14   -- comment comment comment
   )
-  port map (
+  PORT map (
     DATA  => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
@@ -366,7 +386,7 @@
 
   U7 : e_e
   generic
-    map (
+    MAP (
       g_WIDTH => 14   -- comment comment comment
     )
   port map (

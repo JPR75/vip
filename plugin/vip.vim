@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.1
-" Last Change: nov. 28 2010
+" Version:     1.1.2
+" Last Change: déc. 05 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -100,7 +100,7 @@ function s:PasteII(autoInc, instanceNumb, instSuffix, yankBlock)
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Clean up  the block before paste as instance of component
+" Clean up the block before paste as instance of component
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function s:CleanECI(yankBlock)
   let newBlock = []
@@ -108,19 +108,60 @@ function s:CleanECI(yankBlock)
 
     for i in range(0, nbOfLines)
       let currentLine = a:yankBlock[i]
-      let subLines = split(currentLine, ',')
-      let j = 0
-      for subWords in subLines
-        if j == 0
-          let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
-          let indentVal = strpart(currentLine, 0, indentPos)
+      let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
+      let indentVal = strpart(currentLine, 0, indentPos)
+      let skip = 0
+
+      " put signal after generic's brace to a new line
+      let portPos = match(currentLine, '\cgeneric')
+      if portPos != -1
+
+        let beforePort = strpart(currentLine, 0, portPos)
+        let newBlock += [beforePort."generic ("]
+        let bracePos = match(currentLine, '(') + 1
+        let afterBrace = strpart(currentLine, bracePos)
+        if afterBrace != ""
+          let currentLine = indentVal.afterBrace
         else
-          let subWords = substitute(subWords, "\[ \t]", "", "g") " remove space & tab at begenning of line
-          let subWords = indentVal.subWords
+          let skip = 1
         endif
-        let newBlock += [subWords]
-        let j += 1
-      endfor
+      endif
+
+      " put signal after port's brace to a new line
+      let portPos = match(currentLine, '\cport')
+      if portPos != -1
+        let beforePort = strpart(currentLine, 0, portPos)
+        let newBlock += [beforePort."port ("]
+        let bracePos = match(currentLine, '(') + 1
+        let afterBrace = strpart(currentLine, bracePos)
+        if afterBrace != ""
+          let currentLine = indentVal.afterBrace
+        else
+          let skip = 1
+        endif
+      endif
+
+"echo currentLine
+
+      " let indentVal = strpart(currentLine, 0, indentPos)
+      " Put each signal seperated by , to a new line
+      if skip == 0
+        let subLines = split(currentLine, ',')
+        let j = 0
+        for subWords in subLines
+          if j == 0
+            let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
+            let indentVal = strpart(currentLine, 0, indentPos)
+          else
+            let subWords = substitute(subWords, "\[ \t]", "", "g") " remove space & tab at begenning of line
+            let subWords = indentVal.subWords
+          endif
+          let newBlock += [subWords]
+"echo newBlock
+          let j += 1
+        endfor
+      endif
+
     endfor
 
     let newBlock += [""] " Add a blank line after the instance

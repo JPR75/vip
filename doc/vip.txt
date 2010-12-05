@@ -414,6 +414,11 @@ LICENSE                                                          *vip-license*
 ==============================================================================
 HISTORY                                                          *vip-history*
 
+Version 1.1.2 ; déc. 05 2010 ~
+----------------------------
+ - Support for signal after brace
+
+
 Version 1.1.1 ; nov. 28 2010 ~
 ----------------------------
  - Support for declaration of multiple signal on the same line
