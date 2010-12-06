@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.2
-" Last Change: déc. 05 2010
+" Version:     1.1.3
+" Last Change: déc. 06 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -113,7 +113,7 @@ function s:CleanECI(yankBlock)
       let skip = 0
 
       " put signal after generic's brace to a new line
-      let portPos = match(currentLine, '\cgeneric')
+      let portPos = match(currentLine, '\c\<generic\>')
       if portPos != -1
 
         let beforePort = strpart(currentLine, 0, portPos)
@@ -128,7 +128,7 @@ function s:CleanECI(yankBlock)
       endif
 
       " put signal after port's brace to a new line
-      let portPos = match(currentLine, '\cport')
+      let portPos = match(currentLine, '\c\<port\>')
       if portPos != -1
         let beforePort = strpart(currentLine, 0, portPos)
         let newBlock += [beforePort."port ("]
@@ -140,8 +140,6 @@ function s:CleanECI(yankBlock)
           let skip = 1
         endif
       endif
-
-"echo currentLine
 
       " let indentVal = strpart(currentLine, 0, indentPos)
       " Put each signal seperated by , to a new line
@@ -157,7 +155,6 @@ function s:CleanECI(yankBlock)
             let subWords = indentVal.subWords
           endif
           let newBlock += [subWords]
-"echo newBlock
           let j += 1
         endfor
       endif

@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: nov. 28 2010
+Last Change: déc. 06 2010
 
 Contents:
 
@@ -413,6 +413,11 @@ LICENSE                                                          *vip-license*
 
 ==============================================================================
 HISTORY                                                          *vip-history*
+
+ 1.1.3 ; déc. 06 2010 ~
+----------------------------
+ - Fixed bug when port or generic word was included in a signal name
+
 
 Version 1.1.2 ; déc. 05 2010 ~
 ----------------------------
