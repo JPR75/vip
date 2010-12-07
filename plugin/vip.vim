@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.3
-" Last Change: déc. 06 2010
+" Version:     1.1.4
+" Last Change: déc. 07 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -115,11 +115,15 @@ function s:CleanECI(yankBlock)
       " put signal after generic's brace to a new line
       let portPos = match(currentLine, '\c\<generic\>')
       if portPos != -1
-
         let beforePort = strpart(currentLine, 0, portPos)
         let newBlock += [beforePort."generic ("]
         let bracePos = match(currentLine, '(') + 1
-        let afterBrace = strpart(currentLine, bracePos)
+        if bracePos != 0
+          let afterBrace = strpart(currentLine, bracePos)
+          let afterBrace = substitute(afterBrace, "\[ \t]", "", "g") " remove space & tab at begenning of line
+        else
+          let afterBrace = ""
+        endif
         if afterBrace != ""
           let currentLine = indentVal.afterBrace
         else
@@ -133,7 +137,12 @@ function s:CleanECI(yankBlock)
         let beforePort = strpart(currentLine, 0, portPos)
         let newBlock += [beforePort."port ("]
         let bracePos = match(currentLine, '(') + 1
-        let afterBrace = strpart(currentLine, bracePos)
+        if bracePos != 0
+          let afterBrace = strpart(currentLine, bracePos)
+          let afterBrace = substitute(afterBrace, "\[ \t]", "", "g") " remove space & tab at begenning of line
+        else
+          let afterBrace = ""
+        endif
         if afterBrace != ""
           let currentLine = indentVal.afterBrace
         else
@@ -141,27 +150,26 @@ function s:CleanECI(yankBlock)
         endif
       endif
 
-      " let indentVal = strpart(currentLine, 0, indentPos)
       " Put each signal seperated by , to a new line
       if skip == 0
         let subLines = split(currentLine, ',')
+        let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
+        let indentVal = strpart(currentLine, 0, indentPos)
         let j = 0
         for subWords in subLines
-          if j == 0
-            let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
-            let indentVal = strpart(currentLine, 0, indentPos)
-          else
-            let subWords = substitute(subWords, "\[ \t]", "", "g") " remove space & tab at begenning of line
-            let subWords = indentVal.subWords
+          let subWds = substitute(subWords, "\[ \t]", "", "g") " remove space & tab at begenning of line
+          if j != 0
+            let subWords = indentVal.subWds
           endif
-          let newBlock += [subWords]
+          if subWds != "("
+            let newBlock += [subWords]
+          endif
           let j += 1
         endfor
       endif
 
     endfor
 
-    let newBlock += [""] " Add a blank line after the instance
     return newBlock
 endfunction
 
@@ -175,7 +183,7 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
   let inGeneric = 0
   let i = 0
   let j = -1
-  let nbOfLines = len(a:yankBlock) - 3
+  let nbOfLines = len(a:yankBlock) - 2
 
   " Head and tail of the instance
   let instanceName = split(a:yankBlock[0])
@@ -324,7 +332,7 @@ function s:CopyLines(blockType)
       let i += 1
     endwhile
 
-    if ((a:blockType == "entity") || (a:blockType == "component"))
+    if ((a:blockType ==? "entity") || (a:blockType ==? "component"))
       let currentLine += [getline(fLine + i)] " Get the end entity / end component line
     endif
   catch
@@ -397,7 +405,7 @@ function s:Action(actionToDo)
       let result = s:SPaste(s:VHDLBlock)
     endif
     " Entity paste
-    if (s:VHDLType == "entity")
+    if (s:VHDLType ==? "entity")
       if (a:actionToDo == "entity")
         let result = s:SPaste(s:VHDLBlock)
       endif
@@ -413,7 +421,7 @@ function s:Action(actionToDo)
       endif
     endif
     " Component paste
-    if (s:VHDLType == "component")
+    if (s:VHDLType ==? "component")
       if (a:actionToDo == "entity")
         let result = s:PasteEC(s:VHDLType, g:entityWord_VIP, s:VHDLBlock)
       endif
@@ -429,7 +437,7 @@ function s:Action(actionToDo)
       endif
     endif
     " Instance paste
-    if ((s:VHDLType == "port") || (s:VHDLType == "generic"))
+    if ((s:VHDLType ==? "port") || (s:VHDLType ==? "generic"))
       if (a:actionToDo == "entity")
       endif
       if (a:actionToDo == "component")

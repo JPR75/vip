@@ -323,6 +323,53 @@
 	  c: out bit );
   end component;
 
+  
+
+ENTITY and2 is
+      GENERIC (trise : time := 10 ns;
+            tfall : time := 8 ns);
+      PORT( a : IN std_ulogic;
+            b : IN std_ulogic;
+            c : OUT std_ulogic);
+END and2;
+
+
+ENTITY and2 is
+      GENERIC(trise : time := 10 ns;
+            tfall : time := 8 ns);
+      PORT(a : IN std_ulogic;
+            b : IN std_ulogic;
+            c : OUT std_ulogic);
+END and2;
+
+
+entity clock_cnt is
+ port(
+  clock: in std_logic;
+  reset: in std_logic;
+  num_clk: in integer range 0 to 15;
+  clk_out: out std_logic
+  );
+end clock_cnt;
+
+
+ component adder_n
+ generic (N: integer := 8);
+  port(a,b : in std_logic_vector(n-1 downto 0);
+   cin : in std_logic;
+   sum : out std_logic_vector(n-1 downto 0);
+   cout : out std_logic);
+ end component;
+
+component bloc_arith is
+generic(N: positive:=8);
+port (A1,B1 : in std_logic_vector(N-1 downto 0);
+SEL1 : in std_logic_vector(1 downto 0);
+CI1 : in std_logic;
+AO1 : out std_logic_vector(N-1 downto 0));
+end component;
+
+
 ---------------------------------------------------------------------------------
 -- Instances
 ---------------------------------------------------------------------------------

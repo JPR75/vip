@@ -414,6 +414,13 @@ LICENSE                                                          *vip-license*
 ==============================================================================
 HISTORY                                                          *vip-history*
 
+
+ 1.1.4 ; déc. 07 2010 ~
+----------------------------
+ - Fixed bug with upper-case ENTITY, COMPONENT copied
+ - More work to add more writing syntax compatibility
+
+
  1.1.3 ; déc. 06 2010 ~
 ----------------------------
  - Fixed bug when port or generic word was included in a signal name
