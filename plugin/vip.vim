@@ -1,6 +1,6 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.5
+" Version:     1.1.6
 " Last Change: déc. 08 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
@@ -315,7 +315,7 @@ function s:CopyLines(blockType)
           echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
           return []
         endif
-        if (currentWord ==? "port") || (currentWord ==? "port(")
+        if (match(currentWord, '\c\<port\>') != -1)
           let openBlock = 1 "Opening of the block detected
         endif
         if ((match(currentWord, "(") != -1) && (openBlock == 1))

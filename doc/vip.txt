@@ -415,6 +415,12 @@ LICENSE                                                          *vip-license*
 HISTORY                                                          *vip-history*
 
 
+ 1.1.6 ; déc. 08 2010 ~
+----------------------------
+ - Fixed unreconized port, brace and signal glued together (eg : top(a :
+   std...)
+
+
  1.1.5 ; déc. 08 2010 ~
 ----------------------------
  - Code clean-up
