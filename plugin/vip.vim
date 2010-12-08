@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.4
-" Last Change: déc. 07 2010
+" Version:     1.1.5
+" Last Change: déc. 08 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -216,10 +216,10 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
       let k = 0
       for currentWord in currentList
 
-        if (currentWord ==? "generic") || (currentWord ==? "generic(")
+        if (currentWord ==? "generic")
           let inGeneric = 1 " inside generic body
           let skipLine = 1 " skip this line
-          if (signalName ==? "generic (") || (signalName ==? "generic(") || (signalName ==? "generic")
+          if (signalName ==? "generic(")
             let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
             let indentVal = strpart(a:yankBlock[i], 0, indentPos)
             let instanceBlock += [indentVal."generic map ("]
@@ -228,10 +228,10 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
           endif
         endif
 
-        if (currentWord ==? "port") || (currentWord ==? "port(")
+        if (currentWord ==? "port")
           let inPort = 1 " inside port body
           let skipLine = 1 " skip this line
-          if (signalName ==? "port (") || (signalName ==? "port(") || (signalName ==? "port")
+          if (signalName ==? "port(")
             let indentPos = match(a:yankBlock[i], "[a-zA-Z]") " first char of an identifiers must be a letter
             let indentVal = strpart(a:yankBlock[i], 0, indentPos)
             let instanceBlock += [indentVal."port map ("]

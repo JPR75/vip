@@ -415,6 +415,11 @@ LICENSE                                                          *vip-license*
 HISTORY                                                          *vip-history*
 
 
+ 1.1.5 ; déc. 08 2010 ~
+----------------------------
+ - Code clean-up
+
+
  1.1.4 ; déc. 07 2010 ~
 ----------------------------
  - Fixed bug with upper-case ENTITY, COMPONENT copied
