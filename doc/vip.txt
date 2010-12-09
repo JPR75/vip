@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: déc. 06 2010
+Last Change: dec. 09 2010
 
 Contents:
 
@@ -415,29 +415,34 @@ LICENSE                                                          *vip-license*
 HISTORY                                                          *vip-history*
 
 
- 1.1.6 ; déc. 08 2010 ~
+ 1.1.7 ; dec. 09 2010 ~
+----------------------------
+ - Remove and restore ( from iskeyword to corecctly parse port & generic
+
+
+ 1.1.6 ; dec. 08 2010 ~
 ----------------------------
  - Fixed unreconized port, brace and signal glued together (eg : top(a :
    std...)
 
 
- 1.1.5 ; déc. 08 2010 ~
+ 1.1.5 ; dec. 08 2010 ~
 ----------------------------
  - Code clean-up
 
 
- 1.1.4 ; déc. 07 2010 ~
+ 1.1.4 ; dec. 07 2010 ~
 ----------------------------
  - Fixed bug with upper-case ENTITY, COMPONENT copied
  - More work to add more writing syntax compatibility
 
 
- 1.1.3 ; déc. 06 2010 ~
+ 1.1.3 ; dec. 06 2010 ~
 ----------------------------
  - Fixed bug when port or generic word was included in a signal name
 
 
-Version 1.1.2 ; déc. 05 2010 ~
+Version 1.1.2 ; dec. 05 2010 ~
 ----------------------------
  - Support for signal after brace
 

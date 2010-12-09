@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.6
-" Last Change: déc. 08 2010
+" Version:     1.1.7
+" Last Change: dec. 09 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -106,6 +106,7 @@ function s:CleanECI(yankBlock)
   let newBlock = []
   let nbOfLines = len(a:yankBlock) - 1
 
+  try
     for i in range(0, nbOfLines)
       let currentLine = a:yankBlock[i]
       let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
@@ -113,6 +114,8 @@ function s:CleanECI(yankBlock)
       let skip = 0
 
       " put signal after generic's brace to a new line
+      let save_iskeyword = &iskeyword
+      set iskeyword -=(
       let portPos = match(currentLine, '\c\<generic\>')
       if portPos != -1
         let beforePort = strpart(currentLine, 0, portPos)
@@ -133,6 +136,7 @@ function s:CleanECI(yankBlock)
 
       " put signal after port's brace to a new line
       let portPos = match(currentLine, '\c\<port\>')
+      let &iskeyword = save_iskeyword
       if portPos != -1
         let beforePort = strpart(currentLine, 0, portPos)
         let newBlock += [beforePort."port ("]
@@ -169,8 +173,12 @@ function s:CleanECI(yankBlock)
       endif
 
     endfor
+  catch
+    echohl WarningMsg | echo  "error : can't copy, please check the formating of copied block, see doc." | echohl None
+    return []
+  endtry
 
-    return newBlock
+  return newBlock
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -315,9 +323,12 @@ function s:CopyLines(blockType)
           echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
           return []
         endif
+        let save_iskeyword = &iskeyword
+        set iskeyword -=(
         if (match(currentWord, '\c\<port\>') != -1)
           let openBlock = 1 "Opening of the block detected
         endif
+        let &iskeyword = save_iskeyword
         if ((match(currentWord, "(") != -1) && (openBlock == 1))
           let braceCnt += 1
         endif
