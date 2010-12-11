@@ -223,6 +223,18 @@
   end entity e_g;
 
 
+  entity e_h is
+    generic
+      (g_WIDTH : positive := 4);
+    port 
+    (DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
+      CLK     : in  std_logic; -- comment comment comment
+      RST_SRn : in  std_logic; -- comment comment comment
+      CLK : out std_logic (31 downto 0)
+    );
+  end entity e_g;
+
+
   component ADD
    generic (
   N : positive range 0 to 16);
@@ -467,6 +479,16 @@ end component;
   U10 : e_k generic
   map (g_WIDTH => 14)   -- comment comment comment
   port map (
+    DATA    => s_DATA,         -- comment comment comment
+    CLK     => s_CLK,           -- comment comment comment
+    RST_SRn => s_RSTn,          -- comment comment comment
+    CLK => s_CLKOUT0(0)     -- comment comment comment
+  );
+
+
+  U11 : e_j generic
+  map(g_WIDTH => 14)   -- comment comment comment
+  port map(
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment

@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: dec. 09 2010
+Last Change: dec. 11 2010
 
 Contents:
 
@@ -165,7 +165,8 @@ VIP needs some formatting to parse correctly a block. It will fail to read a
 block if the opening brace is followed by text or if there is no "port" or
 "generic" keyword before the opening brace on the same line.
 Do not put a blank line inside your block. VIP stops at a blank line, this is to
-avoid parsing the whole file if a closing brace is missing. Instead of a blank line, use a comment line.
+avoid parsing the whole file if a closing brace is missing in an instance of
+component. Instead of a blank line, use a comment line.
 Each signal should be on a separate line
 
 To resume :
@@ -415,6 +416,13 @@ LICENSE                                                          *vip-license*
 HISTORY                                                          *vip-history*
 
 
+ 1.1.8 ; dec. 11 2010 ~
+----------------------------
+ - Show a message when a block is yanked
+ - Copy as instance optimisation
+ - Better indentation when pasting as instance
+
+
  1.1.7 ; dec. 09 2010 ~
 ----------------------------
  - Remove and restore ( from iskeyword to corecctly parse port & generic
@@ -422,7 +430,7 @@ HISTORY                                                          *vip-history*
 
  1.1.6 ; dec. 08 2010 ~
 ----------------------------
- - Fixed unreconized port, brace and signal glued together (eg : top(a :
+ - Fixed unrecognized port, brace and signal glued together (eg : top(a :
    std...)
 
 

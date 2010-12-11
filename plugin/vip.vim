@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.7
-" Last Change: dec. 09 2010
+" Version:     1.1.8
+" Last Change: dec. 11 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -86,7 +86,7 @@ function s:PasteII(autoInc, instanceNumb, instSuffix, yankBlock)
       endif
     endif
   catch
-    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    echohl WarningMsg | echo  "VIP error : can't paste, please check the formating of copied block, see doc." | echohl None
     return 0
   endtry
 
@@ -107,6 +107,9 @@ function s:CleanECI(yankBlock)
   let nbOfLines = len(a:yankBlock) - 1
 
   try
+      let save_iskeyword = &iskeyword
+      set iskeyword -=(
+
     for i in range(0, nbOfLines)
       let currentLine = a:yankBlock[i]
       let indentPos = match(currentLine, "[a-zA-Z]") " first char of an identifiers must be a letter
@@ -114,8 +117,6 @@ function s:CleanECI(yankBlock)
       let skip = 0
 
       " put signal after generic's brace to a new line
-      let save_iskeyword = &iskeyword
-      set iskeyword -=(
       let portPos = match(currentLine, '\c\<generic\>')
       if portPos != -1
         let beforePort = strpart(currentLine, 0, portPos)
@@ -128,7 +129,7 @@ function s:CleanECI(yankBlock)
           let afterBrace = ""
         endif
         if afterBrace != ""
-          let currentLine = indentVal.afterBrace
+          let currentLine = indentVal.s:indChar.afterBrace
         else
           let skip = 1
         endif
@@ -136,7 +137,6 @@ function s:CleanECI(yankBlock)
 
       " put signal after port's brace to a new line
       let portPos = match(currentLine, '\c\<port\>')
-      let &iskeyword = save_iskeyword
       if portPos != -1
         let beforePort = strpart(currentLine, 0, portPos)
         let newBlock += [beforePort."port ("]
@@ -148,7 +148,7 @@ function s:CleanECI(yankBlock)
           let afterBrace = ""
         endif
         if afterBrace != ""
-          let currentLine = indentVal.afterBrace
+          let currentLine = indentVal.s:indChar.afterBrace
         else
           let skip = 1
         endif
@@ -164,17 +164,22 @@ function s:CleanECI(yankBlock)
           let subWds = substitute(subWords, "\[ \t]", "", "g") " remove space & tab at begenning of line
           if j != 0
             let subWords = indentVal.subWds
+          else
+            let subWords = subWords
           endif
           if subWds != "("
             let newBlock += [subWords]
           endif
+
           let j += 1
         endfor
       endif
 
     endfor
+
+    let &iskeyword = save_iskeyword
   catch
-    echohl WarningMsg | echo  "error : can't copy, please check the formating of copied block, see doc." | echohl None
+    echohl WarningMsg | echo  "VIP error : can't copy, please check the formating of copied block, see doc." | echohl None
     return []
   endtry
 
@@ -290,7 +295,7 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
 
     endfor
   catch
-    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    echohl WarningMsg | echo  "VIP error : can't paste, please check the formating of copied block, see doc." | echohl None
     return 0
   endtry
 
@@ -311,24 +316,26 @@ function s:CopyLines(blockType)
   let fLine = line(".")
 
   try
+   let save_iskeyword = &iskeyword
+   set iskeyword -=(
+
     while ((braceCnt != 0) || (closeBrace == 0))
       let currentLine += [getline(fLine + i)]
       let currentList = split(currentLine[i])
       if currentList == []
-        echohl WarningMsg | echo  "error : end of block not detected, missing \")\" or \");\" ?" | echohl None
+        echohl WarningMsg | echo  "VIP error : end of block not detected, missing \")\" or \");\" ?" | echohl None
+        let &iskeyword = save_iskeyword
         return []
       endif
       for currentWord in currentList
         if (currentWord==? "end")
-          echohl WarningMsg | echo  "error : \"end\" detected" | echohl None
+          echohl WarningMsg | echo  "VIP error : \"end\" detected" | echohl None
+          let &iskeyword = save_iskeyword
           return []
         endif
-        let save_iskeyword = &iskeyword
-        set iskeyword -=(
         if (match(currentWord, '\c\<port\>') != -1)
           let openBlock = 1 "Opening of the block detected
         endif
-        let &iskeyword = save_iskeyword
         if ((match(currentWord, "(") != -1) && (openBlock == 1))
           let braceCnt += 1
         endif
@@ -343,11 +350,13 @@ function s:CopyLines(blockType)
       let i += 1
     endwhile
 
+    let &iskeyword = save_iskeyword
+
     if ((a:blockType ==? "entity") || (a:blockType ==? "component"))
       let currentLine += [getline(fLine + i)] " Get the end entity / end component line
     endif
   catch
-    echohl WarningMsg | echo  "error : can't paste, please check the formating of copied block, see doc." | echohl None
+    echohl WarningMsg | echo  "VIP error : can't paste, please check the formating of copied block, see doc." | echohl None
     return 0
   endtry
 
@@ -363,14 +372,14 @@ function s:CheckType()
   let firstLine = split(getline("."))
 
   if (firstLine == [])
-    " empty line
-    echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
+    " Empty line
+    echohl WarningMsg | echo "VIP error : please palce the cursor on entity, component or instance line" | echohl None
     return ""
   endif
   if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic") || (firstLine[0] ==? ")") || (firstLine[0] ==? ");"))
     " Bad cursor position, cursor should be on "entity", "component"
     " or on the instance name line
-    echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
+    echohl WarningMsg | echo "VIP error : please palce the cursor on entity, component or instance line" | echohl None
     return ""
   endif
   for firstLineWord in firstLine
@@ -384,7 +393,7 @@ function s:CheckType()
   if ((firstLine[0] ==? "port") || (firstLine[0] ==? "generic"))
     return firstLine[0]
   endif
-  echohl WarningMsg | echo "error : please palce the cursor on entity, component or instance line" | echohl None
+  echohl WarningMsg | echo "VIP error : please palce the cursor on entity, component or instance line" | echohl None
   return ""
 endfunction
 
@@ -408,6 +417,12 @@ function s:Action(actionToDo)
   if (a:actionToDo == "yank")
     let [s:VHDLType,s:VHDLBlock] = s:YankB()
     let s:instanceNumb = 0
+    if ((s:VHDLType ==? "port") || (s:VHDLType ==? "generic"))
+      let s:VHDLType = "instance"
+    endif
+    if s:VHDLBlock != []
+      echo "VIP : ".s:VHDLType." copied"
+    endif
   endif
   " Paste
   if s:VHDLBlock != []
@@ -448,7 +463,7 @@ function s:Action(actionToDo)
       endif
     endif
     " Instance paste
-    if ((s:VHDLType ==? "port") || (s:VHDLType ==? "generic"))
+    if s:VHDLType ==? "instance"
       if (a:actionToDo == "entity")
       endif
       if (a:actionToDo == "component")
@@ -467,6 +482,15 @@ endfunction
 let s:VHDLBlock = [] " container for the block to be copied
 let s:VHDLType = ""  " type of the block to copy
 let s:instanceNumb = 0
+
+if &expandtab == 1
+  let s:indChar = " "
+else
+  let s:indChar = "\t"
+endif
+for s:inc in range(2, &shiftwidth)
+  let s:indChar = s:indChar.s:indChar
+endfor
 
 """""""""""""" Yank
 if !hasmapto('<Plug>SpecialVHDLAction')
