@@ -1,6 +1,6 @@
 -- A collection of entity and components to test the VEP plugin
--- v 0.1.0
--- nov. 07 2010
+-- v 1.2.0
+-- dec. 12 2010
 -- LGPLv3
 
 	  component a_a is port (
@@ -13,7 +13,7 @@
 
    
 
-	  component a_b is port (
+	  component a_b is PORT (
 	      DATA     : in std_logic_vector (31 downto 0); -- comment comment comment
       CLK        : in  std_logic;   -- comment comment comment
       	RST_SRn    : in  std_logic;   -- comment comment comment
@@ -78,7 +78,7 @@
 
 
 
-  component c_a is
+  entity c_a is
     generic (g_WIDTH : positive := 4);
     port (
       DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
@@ -86,11 +86,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_a;
+  end entity c_a;
 
 
 
-  component c_b is
+  ENTITY c_b is
     generic (
       g_WIDTH : positive := 4
     );
@@ -100,11 +100,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_b;
+  end entity c_b;
 
 
 
-  component c_c is
+  entity c_c is
     generic (
       g_WIDTH : positive := 4);
     port (
@@ -113,11 +113,11 @@
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic  -- comment comment comment
     );
-  end component c_c;
+  end entity c_c;
 
 
 
-  component c_d is
+  entity c_d is
     generic (
       g_WIDTH : positive := 4);
     port (
@@ -125,7 +125,7 @@
       CLK     : in  std_logic; -- comment comment comment
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic);
-  end component c_d;
+  end entity c_d;
 
 
   component e_a is
@@ -169,7 +169,7 @@
   end component e_c;
 
 
-  component e_d is
+  entity e_d is
     generic (
       -- comment
       --comment
@@ -181,7 +181,7 @@
       CLK     : in  std_logic; -- comment comment comment
       RST_SRn : in  std_logic; -- comment comment comment
       CLK : out std_logic);
-  end component e_d;
+  end entity e_d;
 
 
   component e_e is
@@ -197,10 +197,42 @@
   end component e_e;
 
 
-  component e_f is
+  entity e_f is
     generic ( );
     port ( );
-  end component e_f;
+  end entity e_f;
+
+
+  entity e_g is
+    generic
+    (
+      -- comment
+      --comment
+      g_WIDTH : positive := 4
+    );
+    port 
+    (
+      --comment
+      DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
+      -- comment
+      -----------------------
+      CLK     : in  std_logic; -- comment comment comment
+      RST_SRn : in  std_logic; -- comment comment comment
+      CLK : out std_logic (31 downto 0)
+    );
+  end entity e_g;
+
+
+  entity e_h is
+    generic
+      (g_WIDTH : positive := 4);
+    port 
+    (DATA  : in std_logic_vector (31 downto 0);  -- comment comment comment
+      CLK     : in  std_logic; -- comment comment comment
+      RST_SRn : in  std_logic; -- comment comment comment
+      CLK : out std_logic (31 downto 0)
+    );
+  end entity e_g;
 
 
   component ADD
@@ -221,7 +253,7 @@
      end component;
 
 
-  component reg32 is
+  entity reg32 is
      generic (
                setup_time : time := 50 ps;
                pulse_width : time := 100 ps  );
@@ -230,7 +262,7 @@
             output: out std_logic_vector(31 downto 0);
             Load  : in  std_logic_vector;
             Clk   : in  std_logic_vector );
-  end component reg32;
+  end entity reg32;
 
 
   component reg32 is
@@ -247,18 +279,122 @@
   end component reg32;
 
   
-  component reg32 is
+  entity reg32 is
      generic ( setup_time : time := 50 ps;
                pulse_width : time := 100 ps  );
      port ( input : in std_logic_vector(31 downto 0);
             output: out std_logic_vector(31 downto 0);
             Load  : in  std_logic_vector;
             Clk   : in  std_logic_vector );
-  end component reg32;
+  end entity reg32;
+
+
+  component foo
+    port (
+           a, b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port (
+           a,b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port (a,b: in bit;
+	  c: out bit);
+  end component;
+
+
+  component foo
+    port ( a,b: in bit;
+	  c: out bit );
+  end component;
+
+
+  component foo
+    port ( a_port,b.toto: in bit;
+	  c: out bit );
+  end component;
+
+
+  component foo
+    port 	    (
+           a, 	    b: in bit;
+	  c: out bit 	   );
+  end component;
+
+  
+  component foo
+        generic ( a_port,b.toto: in bit;
+	  c: out bit );
+    port ( a_port,b.toto: in bit;
+	  c: out bit );
+  end component;
+
+  
+
+ENTITY and2 is
+      GENERIC (trise : time := 10 ns;
+            tfall : time := 8 ns);
+      PORT( a : IN std_ulogic;
+            b : IN std_ulogic;
+            c : OUT std_ulogic);
+END and2;
+
+
+ENTITY and2 is
+      GENERIC(trise : time := 10 ns;
+            tfall : time := 8 ns);
+      PORT(a : IN std_ulogic;
+            b : IN std_ulogic;
+            c : OUT std_ulogic);
+END and2;
+
+
+entity clock_cnt is
+ port(
+  clock: in std_logic;
+  reset: in std_logic;
+  num_clk: in integer range 0 to 15;
+  clk_out: out std_logic
+  );
+end clock_cnt;
+
+
+ component adder_n
+ generic (N: integer := 8);
+  port(a,b : in std_logic_vector(n-1 downto 0);
+   cin : in std_logic;
+   sum : out std_logic_vector(n-1 downto 0);
+   cout : out std_logic);
+ end component;
+
+
+component bloc_arith is
+generic(N: positive:=8);
+port (A1,B1 : in std_logic_vector(N-1 downto 0);
+SEL1 : in std_logic_vector(1 downto 0);
+CI1 : in std_logic;
+AO1 : out std_logic_vector(N-1 downto 0));
+end component;
+
+
+Entity piso is generic (width, wdth : time:=8); port(clk,load1,in1,o1 : std); end component;
+
+
+Entity piso is generic (width, wdth : time :=8); 
+  port(clk,load1,in1,o1 : std);
+end component;
+
 
 ---------------------------------------------------------------------------------
 -- Instances
 ---------------------------------------------------------------------------------
+
 
   U0_7_u_10 : d_a port map (
     DATA     => s_DATA,     -- comment comment comment
@@ -266,6 +402,7 @@
     RST_SRn    => s_RST_SRn,    -- comment comment comment
     DELAY      => s_DELAY       -- comment comment comment
   );
+
 
   U1 : d_b
   port map (
@@ -275,11 +412,13 @@
     DELAY      => s_DELAY       -- comment comment comment
   );
 
+
   U2 : d_c port map (
     DATA       => s_DATA,     -- comment comment comment
     CLK        => s_CLK,        -- comment comment comment
     RST_SRn    => s_RST_SRn,    -- comment comment comment
     DELAY      => s_DELAY);
+
 
   U3 : e_a
   generic map (g_WIDTH=>14)   -- comment comment comment
@@ -290,36 +429,40 @@
     CLK=>s_CLKOUT0(0)     -- comment comment comment
   );
 
+
   U4 : e_b
-  generic map (g_WIDTH => 14)   -- comment comment comment
+  GENERIC MAP (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK     => s_CLKOUT0(0));
 
+
   U5 : e_c
   generic map (g_WIDTH => 14)   -- comment comment comment
-  port map (
+  PORT MAP (
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK (15 downto 0) => s_CLKOUT0 (15 downto 0));
 
+
   U6 : e_d
   generic map (
     g_WIDTH => 14   -- comment comment comment
   )
-  port map (
+  PORT map (
     DATA  => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
+
   U7 : e_e
   generic
-    map (
+    MAP (
       g_WIDTH => 14   -- comment comment comment
     )
   port map (
@@ -328,6 +471,7 @@
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK     => s_CLKOUT0(0)     -- comment comment comment
   );
+
 
   U8 : e_f
   generic
@@ -342,6 +486,7 @@
       CLK => s_CLKOUT0(0)     -- comment comment comment
     );
 
+
   U9 : e_g generic map (g_WIDTH => 14)   -- comment comment comment
   port map (
     DATA    => s_DATA,         -- comment comment comment
@@ -349,6 +494,7 @@
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
+
 
   U10 : e_k generic
   map (g_WIDTH => 14)   -- comment comment comment
@@ -359,18 +505,23 @@
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
 
----------------------------------------------------------------------------------
--- Bad Instances
---------------------------------------------------------------------------------
 
-  U11  e_l generic
-  map (g_WIDTH => 14)   -- comment comment comment
-  port map (
+  U11 : e_j generic
+  map(g_WIDTH => 14)   -- comment comment comment
+  port map(
     DATA    => s_DATA,         -- comment comment comment
     CLK     => s_CLK,           -- comment comment comment
     RST_SRn => s_RSTn,          -- comment comment comment
     CLK => s_CLKOUT0(0)     -- comment comment comment
   );
+
+
+reg1:reg_nb
+GENERIC MAP(length=>7) PORT MAP(reg_in=>r_in,clk=>clk,rst=>rst,reg_out=>r_out) ;
+
+---------------------------------------------------------------------------------
+-- Bad Instances
+--------------------------------------------------------------------------------
 
   U12 : e_l generic
   map (g_WIDTH => 14)   -- comment comment comment
