@@ -1,7 +1,7 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.1.8
-" Last Change: dec. 11 2010
+" Version:     1.1.9
+" Last Change: dec. 12 2010
 " Author:      Jean-Paul Ricaud
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
@@ -124,11 +124,12 @@ function s:CleanECI(yankBlock)
         let bracePos = match(currentLine, '(') + 1
         if bracePos != 0
           let afterBrace = strpart(currentLine, bracePos)
-          let afterBrace = substitute(afterBrace, "\[ \t]", "", "g") " remove space & tab at begenning of line
+          let afterBrc = substitute(afterBrace, "\[ \t]", "", "g")
         else
           let afterBrace = ""
+          let afterBrc = ""
         endif
-        if afterBrace != ""
+        if afterBrc != ""
           let currentLine = indentVal.s:indChar.afterBrace
         else
           let skip = 1
@@ -143,11 +144,12 @@ function s:CleanECI(yankBlock)
         let bracePos = match(currentLine, '(') + 1
         if bracePos != 0
           let afterBrace = strpart(currentLine, bracePos)
-          let afterBrace = substitute(afterBrace, "\[ \t]", "", "g") " remove space & tab at begenning of line
+          let afterBrc = substitute(afterBrace, "\[ \t]", "", "g")
         else
           let afterBrace = ""
+          let afterBrc = ""
         endif
-        if afterBrace != ""
+        if afterBrc != ""
           let currentLine = indentVal.s:indChar.afterBrace
         else
           let skip = 1
@@ -328,6 +330,7 @@ function s:CopyLines(blockType)
         return []
       endif
       for currentWord in currentList
+
         if (currentWord==? "end")
           echohl WarningMsg | echo  "VIP error : \"end\" detected" | echohl None
           let &iskeyword = save_iskeyword
@@ -346,6 +349,7 @@ function s:CopyLines(blockType)
             let braceCnt -= 1 " the first ) has been counted above, the second is counted here
           endif
         endif
+
       endfor
       let i += 1
     endwhile

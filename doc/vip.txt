@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: dec. 11 2010
+Last Change: dec. 12 2010
 
 Contents:
 
@@ -167,13 +167,13 @@ block if the opening brace is followed by text or if there is no "port" or
 Do not put a blank line inside your block. VIP stops at a blank line, this is to
 avoid parsing the whole file if a closing brace is missing in an instance of
 component. Instead of a blank line, use a comment line.
-Each signal should be on a separate line
+Signals separated by a semicolon (;) should be on a separate line.
 
 To resume :
-  - No text after the opening brace
-  - "port" or "generic" before the opening brace, on the same line
+  - No text after the opening brace without "port" or "generic" on the same
+    line
   - No blank line in the body of the block
-  - Each signal should be on a separate line
+  - Signals separated by semicolon should be on a separate line
 
 Here is some examples of formatting which ** WILL NOT ** work with VIP :
 
@@ -181,42 +181,10 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
     -- Bad formatting for VIP
     -- No "port" or "generic" before the opening brace
     component mux is port
-    (
-      INPUT  : in  std_logic_vector (15 downto 0);
+    ( INPUT  : in  std_logic_vector (15 downto 0);
       OUTPUT : out std_logic
     );
     end component mux;
-
-    -- Bad formatting for VIP
-    -- Text after the "port" opening brace
-    component mux is
-      port  (  INPUT  : in  std_logic_vector (15 downto 0);
-        OUTPUT : out std_logic
-      );
-    end component mux;
-
-    -- Bad formatting for VIP
-    -- Comment after the "port" opening brace
-    component mux is
-      port  (   -- bad placed comment
-        INPUT  : in  std_logic_vector (15 downto 0);
-        OUTPUT : out std_logic
-      );
-    end component mux;
-
-    -- Bad formatting for VIP
-    -- Text after the "port" opening brace
-    U0 : clock port map ( CLK => s_CLK );
-
-    -- Bad formatting for VIP
-    -- Text after the "generic" opening brace
-    component mux is
-    generic (g_WIDTH => 14)
-    port (
-      DATA    : in std_logic;
-      RST_SRn : in std_logic;
-      CLK     : out std_logic
-    );
 
     -- Bad formatting for VIP
     -- Blank line in the component body
@@ -229,18 +197,22 @@ Here is some examples of formatting which ** WILL NOT ** work with VIP :
     end component mux;
 
     -- Bad formatting for VIP
-    -- Several signals on same line
-    entity dsr is
-     port (
-      D, CLK, S : in std_logic;
-      Q : out std_logic);
-    end entity dsr;
-
+    -- c should be on a new line
+    component foo
+      port (a,b: in bit; c: out bit);
+    end component;
 <
 
 Here is some examples of formatting which will work with VIP :
 
 >
+    -- Good formatting for VIP
+    component foo
+      port (
+        a,b: in bit;
+        c: out bit);
+    end component;
+
     -- Good formatting for VIP
     component mux is port (
       INPUT  : in  std_logic;
@@ -414,6 +386,11 @@ LICENSE                                                          *vip-license*
 
 ==============================================================================
 HISTORY                                                          *vip-history*
+
+
+ 1.1.9 ; dec. 12 2010 ~
+----------------------------
+ - Code optimization
 
 
  1.1.8 ; dec. 11 2010 ~
