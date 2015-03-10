@@ -47,4 +47,4 @@ It can work with many different styles of writing entities, components and insta
 
 #Download :
 
-[VIM scripts / VIP] (www.vim.org/scripts/script.php?script_id=3335)
+[VIM scripts / VIP] (http://www.vim.org/scripts/script.php?script_id=3335)
