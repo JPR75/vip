@@ -2,7 +2,7 @@
 
 VIP                                                   *VIP* *vip* *vip-plugin*
 For Vim version 7.0 or later.
-Last Change: dec. 12 2010
+Last Change: feb. 01 2016
 
 Contents:
 
@@ -362,8 +362,8 @@ Note : don't use <F1>, it is already used for help.
 CONTACT                                                          *vip-contact*
 
 Download          : http://www.vim.org/scripts/
-Contact, feedback : http://www.microreflexion.com/?page_id=9
-Source code       : http://gitorious.org/vip
+Contact, feedback : https://github.com/JPR75/vip
+Source code       : https://github.com/JPR75/vip
 
 
 ==============================================================================
@@ -387,6 +387,14 @@ LICENSE                                                          *vip-license*
 ==============================================================================
 HISTORY                                                          *vip-history*
 
+
+ 1.4.0 ; feb. 01 2016 ~
+----------------------------
+ Updated with Franz Hechfellner improvements:
+
+    "since I use your plugin often, I improved vip.vim in terms of multible
+    braces and empty lines and made it more robust for different entitiy
+    formats. It is still not perfect but better."
 
  1.2.0 ; dec. 12 2010 ~
 ----------------------------
