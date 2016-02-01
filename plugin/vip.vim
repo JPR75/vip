@@ -1,8 +1,8 @@
 " VIP : VHDL Interface Plugin
 " File:        vip.vim
-" Version:     1.2.0
-" Last Change: dec. 12 2010
-" Author:      Jean-Paul Ricaud
+" Version:     1.4.0
+" Last Change: feb. 01 2016
+" Author:      Jean-Paul Ricaud, Franz Hechfellner
 " License:     LGPLv3
 " Description: Copy entity (or component) and paste as component (or entity)
 "              or instance of component
@@ -47,6 +47,16 @@ function s:PasteEC(blockType, blockSubstitute, yankBlock)
   let copyType  = a:blockType " to avoid alteration of the copied block
   let copyBlock = copy(a:yankBlock) " to avoid alteration of the original block
   let newBlock = map(copyBlock, 'substitute(v:val, copyType, a:blockSubstitute, "g")')
+
+  let nbOfLines = len(newBlock) - 1
+  " call Debug("PasteEC: newBlock = " . newBlock[nbOfLines-1]  ) 
+  if ((a:blockType ==? "entity") && (a:blockSubstitute ==? "component"))
+     let newBlock[nbOfLines-1] = substitute(newBlock[nbOfLines-1], "end.*\|END.*", "end component;", "g")
+  endif
+  if ((a:blockType ==? "component") && (a:blockSubstitute ==? "entity"))
+     let newBlock[nbOfLines-1] = substitute(newBlock[nbOfLines-1], "end.*\|END.*", "end entity;", "g")
+  endif
+  " call Debug("PasteEC: newBlock# = " . newBlock[nbOfLines-1]  ) 
   call append(line("."), newBlock)
   return 1
 endfunction
@@ -199,6 +209,7 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
   let i = 0
   let j = -1
   let nbOfLines = len(a:yankBlock) - 2
+  let lastIndex = 0
 
   " Head and tail of the instance
   let instanceName = split(a:yankBlock[0])
@@ -255,31 +266,35 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
           endif
         endif
 
-        if (match(currentWord, "(") != -1)
-          let braceCnt += 1
-        endif
-
-        if (braceCnt > 0) && (skipLine == 0) && (k == 0)
-          if inGeneric == 1
-            let instanceBlock += [signalBefore." => ,"]
+        for ii in range(strlen(currentWord)) "count brace
+          if (currentWord[ii] == "(")
+             let braceCnt += 1
           endif
-          if inPort == 1
+          if (currentWord[ii] == ")")
+             let braceCnt -= 1
+          endif
+        endfor
+
+        if ((braceCnt > 0) && (skipLine == 0) && (k == 0))
+          if (inGeneric == 1)
+            let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
+          endif
+          if (inPort == 1)
             let instanceBlock += [signalBefore." => ".a:sigPrefix.signalName.","]
           endif
         endif
 
-        if (match(currentWord, ")")) != -1
-          let braceCnt -= 1
-          if match(currentWord, "))") != -1 " in case of a (m downto n));
-            let braceCnt -= 1 " the first ) has been counted above, the second is counted here
-          endif
+        if ((match(currentWord, ")")) != -1)
           if braceCnt == 0
-            if signalName == ");" " have we a closing brace at a new line ?
-              let instanceBlock[j-1] = substitute(instanceBlock[j-1], "\,", "", "g") " remove the , of last signal
-              let instanceBlock[j] = currentLine
+            let lastIndex = len(instanceBlock)-1
+            if (signalName == ");") " have we a closing brace at a new line ?
+
+              let instanceBlock[lastIndex] = substitute(instanceBlock[lastIndex], "\,", "", "g") " remove the , of last signal
+              let instanceBlock += [currentLine]
+              let lastIndex += 1
             else
-              let instanceBlock[j] = substitute(instanceBlock[j], "\,", "", "g") " remove the , of last signal
-              let instanceBlock[j] = instanceBlock[j]." )"
+              let instanceBlock[lastIndex] = substitute(instanceBlock[lastIndex], "\,", "", "g") " remove the , of last signal
+              let instanceBlock[lastIndex] = instanceBlock[lastIndex]." )"
             endif
 
             if inGeneric == 1
@@ -287,17 +302,17 @@ function s:PasteECI(instanceNumb, instPrefix, instSuffix, sigPrefix, yankBlock)
             endif
             if inPort == 1
               let inPort = 0
-              let instanceBlock[j] = instanceBlock[j].";"
+              let instanceBlock[lastIndex] = instanceBlock[lastIndex].";"
             endif
 
           endif
         endif
         let k += 1
       endfor
-
     endfor
   catch
     echohl WarningMsg | echo  "VIP error : can't paste, please check the formating of copied block, see doc." | echohl None
+    "echo "k" k "braceCnt" braceCnt "inPort" inPort "signalName" signalName "lastIndex=" lastIndex
     return 0
   endtry
 
@@ -324,11 +339,11 @@ function s:CopyLines(blockType)
     while ((braceCnt != 0) || (closeBrace == 0))
       let currentLine += [getline(fLine + i)]
       let currentList = split(currentLine[i])
-      if currentList == []
-        echohl WarningMsg | echo  "VIP error : end of block not detected, missing \")\" or \");\" ?" | echohl None
-        let &iskeyword = save_iskeyword
-        return []
-      endif
+     "if currentList == []
+     "  echohl WarningMsg | echo  "VIP error : end of block not detected, missing \")\" or \");\" ?" | echohl None
+     "  let &iskeyword = save_iskeyword
+     "  return []
+     "endif
       for currentWord in currentList
 
         if (currentWord==? "end")
@@ -339,15 +354,18 @@ function s:CopyLines(blockType)
         if (match(currentWord, '\c\<port\>') != -1)
           let openBlock = 1 "Opening of the block detected
         endif
-        if ((match(currentWord, "(") != -1) && (openBlock == 1))
-          let braceCnt += 1
+        if (openBlock == 1)
+          for ii in range(strlen(currentWord))
+            if (currentWord[ii] == "(")
+               let braceCnt += 1
+            endif
+            if (currentWord[ii] == ")")
+               let braceCnt -= 1
+            endif
+          endfor
         endif
-        if ((match(currentWord, ")") != -1) && (openBlock == 1))
-          let braceCnt -= 1
+        if ((braceCnt == 0) && (openBlock == 1))
           let closeBrace = 1
-          if match(currentWord, "))") != -1 " in case of a (m downto n));
-            let braceCnt -= 1 " the first ) has been counted above, the second is counted here
-          endif
         endif
 
       endfor
@@ -360,7 +378,7 @@ function s:CopyLines(blockType)
       let currentLine += [getline(fLine + i)] " Get the end entity / end component line
     endif
   catch
-    echohl WarningMsg | echo  "VIP error : can't paste, please check the formating of copied block, see doc." | echohl None
+    echohl WarningMsg | echo  "VIP error2: can't paste, please check the formating of copied block, see doc." | echohl None
     return 0
   endtry
 
@@ -425,7 +443,7 @@ function s:Action(actionToDo)
       let s:VHDLType = "instance"
     endif
     if s:VHDLBlock != []
-      echo "VIP : ".s:VHDLType." copied"
+      echo "VIP : ".s:VHDLType." ".len(s:VHDLBlock)." lines copied"
     endif
   endif
   " Paste
