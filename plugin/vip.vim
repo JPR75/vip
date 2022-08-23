@@ -510,7 +510,7 @@ if &expandtab == 1
 else
   let s:indChar = "\t"
 endif
-for s:inc in range(2, &shiftwidth)
+for s:inc in range(2, (exists('?shiftwidth') ? shiftwidth() : &shiftwidth))
   let s:indChar = s:indChar.s:indChar
 endfor
 
